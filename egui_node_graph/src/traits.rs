@@ -158,6 +158,17 @@ where
         None
     }
 
+    /// Set background and text color of the node
+    fn bg_and_text_color(
+        &self,
+        _ui: &egui::Ui,
+        _node_id: NodeId,
+        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
+        _user_state: &mut Self::UserState,
+    ) -> Option<(egui::Color32, egui::Color32)> {
+        None
+    }
+
     /// Separator to put between elements in the node.
     ///
     /// Invoked between inputs, outputs and bottom UI. Useful for

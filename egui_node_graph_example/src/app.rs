@@ -13,6 +13,75 @@ pub struct MyNodeData {
     template: MyNodeTemplate,
 }
 
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+pub enum DepthaiNode {
+    ColorCamera,
+    MonoCamera,
+    ImageManip,
+    VideoEncoder,
+
+    NeuralNetwork,
+    DetectionNetwork,
+    MobileNetDetectionNetwork,
+    MobileNetSpatialDetectionNetwork,
+    YoloDetectionNetwork,
+    YoloSpatialDetectionNetwork,
+    SpatialDetectionNetwork,
+
+    SPIIn,
+    XLinkIn,
+
+    SPIOut,
+    XLinkOut,
+
+    Script,
+
+    StereoDepth,
+    SpatialLocationCalculator,
+
+    EdgeDetector,
+    FeaureTracker,
+    ObjectTracker,
+    IMU,
+}
+
+impl DepthaiNode {
+    fn name(&self) -> String {
+        match self {
+            Self::ColorCamera => "Color Camera".to_string(),
+            Self::MonoCamera => "Mono Camera".to_string(),
+            Self::ImageManip => "Image Manipulation".to_string(),
+            Self::VideoEncoder => "Video Encoder".to_string(),
+
+            Self::NeuralNetwork => "Neural Network".to_string(),
+            Self::DetectionNetwork => "Detection Network".to_string(),
+            Self::MobileNetDetectionNetwork => "MobileNet Detection Network".to_string(),
+            Self::MobileNetSpatialDetectionNetwork => {
+                "MobileNet Spatial Detection Network".to_string()
+            }
+            Self::YoloDetectionNetwork => "Yolo Detection Network".to_string(),
+            Self::YoloSpatialDetectionNetwork => "Yolo Spatial Detection Network".to_string(),
+            Self::SpatialDetectionNetwork => "Spatial Detection Network".to_string(),
+
+            Self::SPIIn => "SPI In".to_string(),
+            Self::XLinkIn => "XLink In".to_string(),
+
+            Self::SPIOut => "SPI Out".to_string(),
+            Self::XLinkOut => "XLink Out".to_string(),
+
+            Self::Script => "Script".to_string(),
+
+            Self::StereoDepth => "Stereo Depth".to_string(),
+            Self::SpatialLocationCalculator => "Spatial Location Calculator".to_string(),
+
+            Self::EdgeDetector => "Edge Detector".to_string(),
+            Self::FeaureTracker => "Feature Tracker".to_string(),
+            Self::ObjectTracker => "Object Tracker".to_string(),
+            Self::IMU => "IMU".to_string(),
+        }
+    }
+}
+
 /// `DataType`s are what defines the possible range of connections when
 /// attaching two ports together. The graph UI will make sure to not allow
 /// attaching incompatible datatypes.
@@ -21,6 +90,8 @@ pub struct MyNodeData {
 pub enum MyDataType {
     Scalar,
     Vec2,
+
+    Queue(DepthaiNode),
 }
 
 /// In the graph, input parameters can optionally have a constant value. This
@@ -35,6 +106,8 @@ pub enum MyDataType {
 pub enum MyValueType {
     Vec2 { value: egui::Vec2 },
     Scalar { value: f32 },
+
+    Queue(DepthaiNode),
 }
 
 impl Default for MyValueType {
@@ -63,6 +136,15 @@ impl MyValueType {
             anyhow::bail!("Invalid cast from {:?} to scalar", self)
         }
     }
+
+    /// Tries to downcast this value type to a queue
+    pub fn try_to_node(self) -> anyhow::Result<DepthaiNode> {
+        if let MyValueType::Queue(node) = self {
+            Ok(node)
+        } else {
+            anyhow::bail!("Invalid cast from {:?} to node", self)
+        }
+    }
 }
 
 /// NodeTemplate is a mechanism to define node templates. It's what the graph
@@ -78,6 +160,35 @@ pub enum MyNodeTemplate {
     AddVector,
     SubtractVector,
     VectorTimesScalar,
+
+    CreateColorCamera,
+    CreateMonoCamera,
+    CreateImageManip,
+    CreateVideoEncoder,
+
+    CreateNeuralNetwork,
+    CreateDetectionNetwork,
+    CreateMobileNetDetectionNetwork,
+    CreateMobileNetSpatialDetectionNetwork,
+    CreateYoloDetectionNetwork,
+    CreateYoloSpatialDetectionNetwork,
+    CreateSpatialDetectionNetwork,
+
+    CreateSPIIn,
+    CreateXLinkIn,
+
+    CreateSPIOut,
+    CreateXLinkOut,
+
+    CreateScript,
+
+    CreateStereoDepth,
+    CreateSpatialLocationCalculator,
+
+    CreateEdgeDetector,
+    CreateFeaureTracker,
+    CreateObjectTracker,
+    CreateIMU,
 }
 
 /// The response type is used to encode side-effects produced when drawing a
@@ -107,6 +218,49 @@ impl DataTypeTrait<MyGraphState> for MyDataType {
         match self {
             MyDataType::Scalar => egui::Color32::from_rgb(38, 109, 211),
             MyDataType::Vec2 => egui::Color32::from_rgb(238, 207, 109),
+
+            MyDataType::Queue(DepthaiNode::ColorCamera) => egui::Color32::from_rgb(241, 148, 138),
+            MyDataType::Queue(DepthaiNode::MonoCamera) => egui::Color32::from_rgb(243, 243, 243),
+            MyDataType::Queue(DepthaiNode::ImageManip) => egui::Color32::from_rgb(174, 214, 241),
+            MyDataType::Queue(DepthaiNode::VideoEncoder) => egui::Color32::from_rgb(190, 190, 190),
+
+            MyDataType::Queue(DepthaiNode::NeuralNetwork) => egui::Color32::from_rgb(171, 235, 198),
+            MyDataType::Queue(DepthaiNode::DetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+            MyDataType::Queue(DepthaiNode::MobileNetDetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+            MyDataType::Queue(DepthaiNode::MobileNetSpatialDetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+            MyDataType::Queue(DepthaiNode::YoloDetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+            MyDataType::Queue(DepthaiNode::YoloSpatialDetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+            MyDataType::Queue(DepthaiNode::SpatialDetectionNetwork) => {
+                egui::Color32::from_rgb(171, 235, 198)
+            }
+
+            MyDataType::Queue(DepthaiNode::SPIIn) => egui::Color32::from_rgb(242, 215, 213),
+            MyDataType::Queue(DepthaiNode::XLinkIn) => egui::Color32::from_rgb(242, 215, 213),
+
+            MyDataType::Queue(DepthaiNode::SPIOut) => egui::Color32::from_rgb(230, 176, 170),
+            MyDataType::Queue(DepthaiNode::XLinkOut) => egui::Color32::from_rgb(230, 176, 170),
+
+            MyDataType::Queue(DepthaiNode::Script) => egui::Color32::from_rgb(249, 231, 159),
+
+            MyDataType::Queue(DepthaiNode::StereoDepth) => egui::Color32::from_rgb(215, 189, 226),
+            MyDataType::Queue(DepthaiNode::SpatialLocationCalculator) => {
+                egui::Color32::from_rgb(215, 189, 226)
+            }
+
+            MyDataType::Queue(DepthaiNode::EdgeDetector) => egui::Color32::from_rgb(248, 196, 113),
+            MyDataType::Queue(DepthaiNode::FeaureTracker) => egui::Color32::from_rgb(248, 196, 113),
+            MyDataType::Queue(DepthaiNode::ObjectTracker) => egui::Color32::from_rgb(248, 196, 113),
+            MyDataType::Queue(DepthaiNode::IMU) => egui::Color32::from_rgb(248, 196, 113),
         }
     }
 
@@ -114,6 +268,46 @@ impl DataTypeTrait<MyGraphState> for MyDataType {
         match self {
             MyDataType::Scalar => Cow::Borrowed("scalar"),
             MyDataType::Vec2 => Cow::Borrowed("2d vector"),
+            MyDataType::Queue(DepthaiNode::ColorCamera) => Cow::Borrowed("Color Camera"),
+            MyDataType::Queue(DepthaiNode::MonoCamera) => Cow::Borrowed("Mono Camera"),
+            MyDataType::Queue(DepthaiNode::ImageManip) => Cow::Borrowed("Image Manipulation"),
+            MyDataType::Queue(DepthaiNode::VideoEncoder) => Cow::Borrowed("Video Encoder"),
+
+            MyDataType::Queue(DepthaiNode::NeuralNetwork) => Cow::Borrowed("Neural Network"),
+            MyDataType::Queue(DepthaiNode::DetectionNetwork) => Cow::Borrowed("Detection Network"),
+            MyDataType::Queue(DepthaiNode::MobileNetDetectionNetwork) => {
+                Cow::Borrowed("MobileNet Detection Network")
+            }
+            MyDataType::Queue(DepthaiNode::MobileNetSpatialDetectionNetwork) => {
+                Cow::Borrowed("MobileNet Spatial Detection Network")
+            }
+            MyDataType::Queue(DepthaiNode::YoloDetectionNetwork) => {
+                Cow::Borrowed("Yolo Detection Network")
+            }
+            MyDataType::Queue(DepthaiNode::YoloSpatialDetectionNetwork) => {
+                Cow::Borrowed("Yolo Spatial Detection Network")
+            }
+            MyDataType::Queue(DepthaiNode::SpatialDetectionNetwork) => {
+                Cow::Borrowed("Spatial Detection Network")
+            }
+
+            MyDataType::Queue(DepthaiNode::SPIIn) => Cow::Borrowed("SPI In"),
+            MyDataType::Queue(DepthaiNode::XLinkIn) => Cow::Borrowed("XLink In"),
+
+            MyDataType::Queue(DepthaiNode::SPIOut) => Cow::Borrowed("SPI Out"),
+            MyDataType::Queue(DepthaiNode::XLinkOut) => Cow::Borrowed("XLink Out"),
+
+            MyDataType::Queue(DepthaiNode::Script) => Cow::Borrowed("Script"),
+
+            MyDataType::Queue(DepthaiNode::StereoDepth) => Cow::Borrowed("Stereo Depth"),
+            MyDataType::Queue(DepthaiNode::SpatialLocationCalculator) => {
+                Cow::Borrowed("Spatial Location Calculator")
+            }
+
+            MyDataType::Queue(DepthaiNode::EdgeDetector) => Cow::Borrowed("Edge Detector"),
+            MyDataType::Queue(DepthaiNode::FeaureTracker) => Cow::Borrowed("Feature Tracker"),
+            MyDataType::Queue(DepthaiNode::ObjectTracker) => Cow::Borrowed("Object Tracker"),
+            MyDataType::Queue(DepthaiNode::IMU) => Cow::Borrowed("IMU"),
         }
     }
 }
@@ -136,6 +330,38 @@ impl NodeTemplateTrait for MyNodeTemplate {
             MyNodeTemplate::AddVector => "Vector add",
             MyNodeTemplate::SubtractVector => "Vector subtract",
             MyNodeTemplate::VectorTimesScalar => "Vector times scalar",
+
+            MyNodeTemplate::CreateColorCamera => "Create Color Camera",
+            MyNodeTemplate::CreateMonoCamera => "Create Mono Camera",
+            MyNodeTemplate::CreateImageManip => "Create Image Manipulation",
+            MyNodeTemplate::CreateVideoEncoder => "Create Video Encoder",
+
+            MyNodeTemplate::CreateNeuralNetwork => "Create Neural Network",
+            MyNodeTemplate::CreateDetectionNetwork => "Create Detection Network",
+            MyNodeTemplate::CreateMobileNetDetectionNetwork => "Create MobileNet Detection Network",
+            MyNodeTemplate::CreateMobileNetSpatialDetectionNetwork => {
+                "Create MobileNet Spatial Detection Network"
+            }
+            MyNodeTemplate::CreateYoloDetectionNetwork => "Create Yolo Detection Network",
+            MyNodeTemplate::CreateYoloSpatialDetectionNetwork => {
+                "Create Yolo Spatial Detection Network"
+            }
+            MyNodeTemplate::CreateSpatialDetectionNetwork => "Create Spatial Detection Network",
+
+            MyNodeTemplate::CreateSPIIn => "Create SPI In",
+            MyNodeTemplate::CreateXLinkIn => "Create XLink In",
+
+            MyNodeTemplate::CreateSPIOut => "Create SPI Out",
+            MyNodeTemplate::CreateXLinkOut => "Create XLink Out",
+
+            MyNodeTemplate::CreateScript => "Create Script",
+
+            MyNodeTemplate::CreateStereoDepth => "Create Stereo Depth",
+            MyNodeTemplate::CreateSpatialLocationCalculator => "Create Spatial Location Calculator",
+            MyNodeTemplate::CreateEdgeDetector => "Create Edge Detector",
+            MyNodeTemplate::CreateFeaureTracker => "Create Feature Tracker",
+            MyNodeTemplate::CreateObjectTracker => "Create Object Tracker",
+            MyNodeTemplate::CreateIMU => "Create IMU",
         })
     }
 
@@ -149,6 +375,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
             | MyNodeTemplate::AddVector
             | MyNodeTemplate::SubtractVector => vec!["Vector"],
             MyNodeTemplate::VectorTimesScalar => vec!["Vector", "Scalar"],
+            _ => vec!["Other"],
         }
     }
 
@@ -254,6 +481,56 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 input_scalar(graph, "value");
                 output_scalar(graph, "out");
             }
+
+            MyNodeTemplate::CreateColorCamera => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                    MyValueType::Queue(DepthaiNode::ColorCamera),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "video".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera {}),
+                );
+            }
+            MyNodeTemplate::CreateMonoCamera => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::MonoCamera),
+                    MyValueType::Queue(DepthaiNode::MonoCamera),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "video".into(),
+                    MyDataType::Queue(DepthaiNode::MonoCamera {}),
+                );
+            }
+            MyNodeTemplate::CreateXLinkOut => {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(DepthaiNode::XLinkOut),
+                    MyValueType::Queue(DepthaiNode::XLinkOut),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+
+                graph.add_output_param(
+                    node_id,
+                    "output".into(),
+                    MyDataType::Queue(DepthaiNode::XLinkOut {}),
+                );
+            }
+            _ => {
+                todo!("Implement the rest of the node templates");
+            }
         }
     }
 }
@@ -307,6 +584,9 @@ impl WidgetValueTrait for MyValueType {
                     ui.label(param_name);
                     ui.add(DragValue::new(value));
                 });
+            }
+            _ => {
+                ui.label(param_name);
             }
         }
         // This allows you to return your responses from the inline widgets.
@@ -365,6 +645,69 @@ impl NodeDataTrait for MyNodeData {
         }
 
         responses
+    }
+
+    fn bg_and_text_color(
+        &self,
+        _ui: &egui::Ui,
+        _node_id: NodeId,
+        _graph: &Graph<Self, Self::DataType, Self::ValueType>,
+        _user_state: &mut Self::UserState,
+    ) -> Option<(egui::Color32, egui::Color32)> {
+        match _graph.nodes[_node_id].user_data.template {
+            MyNodeTemplate::CreateColorCamera => Some((
+                egui::Color32::from_rgb(241, 148, 138),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateMonoCamera => Some((
+                egui::Color32::from_rgb(243, 243, 243),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateImageManip => Some((
+                egui::Color32::from_rgb(174, 214, 241),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateVideoEncoder => Some((
+                egui::Color32::from_rgb(190, 190, 190),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateNeuralNetwork
+            | MyNodeTemplate::CreateDetectionNetwork
+            | MyNodeTemplate::CreateMobileNetDetectionNetwork
+            | MyNodeTemplate::CreateMobileNetSpatialDetectionNetwork
+            | MyNodeTemplate::CreateYoloDetectionNetwork
+            | MyNodeTemplate::CreateYoloSpatialDetectionNetwork => Some((
+                egui::Color32::from_rgb(171, 235, 198),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateSPIIn | MyNodeTemplate::CreateXLinkIn => Some((
+                egui::Color32::from_rgb(242, 215, 213),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateSPIOut | MyNodeTemplate::CreateXLinkOut => Some((
+                egui::Color32::from_rgb(230, 176, 170),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateScript => Some((
+                egui::Color32::from_rgb(249, 231, 159),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+            MyNodeTemplate::CreateStereoDepth | MyNodeTemplate::CreateSpatialLocationCalculator => {
+                Some((
+                    egui::Color32::from_rgb(215, 189, 226),
+                    egui::Color32::from_rgb(0, 0, 0),
+                ))
+            }
+            MyNodeTemplate::CreateEdgeDetector
+            | MyNodeTemplate::CreateFeaureTracker
+            | MyNodeTemplate::CreateObjectTracker
+            | MyNodeTemplate::CreateIMU => Some((
+                egui::Color32::from_rgb(248, 196, 113),
+                egui::Color32::from_rgb(0, 0, 0),
+            )),
+
+            _ => None,
+        }
     }
 }
 
@@ -435,6 +778,37 @@ impl eframe::App for NodeGraphExample {
                     MyResponse::ClearActiveNode => self.user_state.active_node = None,
                 }
             }
+        }
+
+        // No nodes, create from json
+        if self.state.node_positions.is_empty() {
+            // Create color cam and xlink out
+
+            let color_cam_template = MyNodeTemplate::CreateColorCamera {};
+            let color_cam = self.state.graph.add_node(
+                "Color Camera".to_owned(),
+                MyNodeData {
+                    template: color_cam_template,
+                },
+                |g, node_id| color_cam_template.build_node(g, &mut self.user_state, node_id),
+            );
+            self.state
+                .node_positions
+                .insert(color_cam, egui::emath::Pos2::new(0.0, 0.0));
+            self.state.node_order.push(color_cam);
+
+            let xlinnk_out_template = MyNodeTemplate::CreateXLinkOut {};
+            let xlink_out = self.state.graph.add_node(
+                "Xlink Out".to_owned(),
+                MyNodeData {
+                    template: xlinnk_out_template,
+                },
+                |g, node_id| xlinnk_out_template.build_node(g, &mut self.user_state, node_id),
+            );
+            self.state
+                .node_positions
+                .insert(xlink_out, egui::emath::Pos2::new(0.0, 1.0));
+            self.state.node_order.push(xlink_out);
         }
 
         if let Some(node) = self.user_state.active_node {
@@ -520,6 +894,12 @@ pub fn evaluate_node(
         fn output_scalar(&mut self, name: &str, value: f32) -> anyhow::Result<MyValueType> {
             self.populate_output(name, MyValueType::Scalar { value })
         }
+        fn input_queue(&mut self, name: &str) -> anyhow::Result<DepthaiNode> {
+            self.evaluate_input(name)?.try_to_node()
+        }
+        fn output_queue(&mut self, name: &str, value: DepthaiNode) -> anyhow::Result<MyValueType> {
+            self.populate_output(name, MyValueType::Queue(value))
+        }
     }
 
     let node = &graph[node_id];
@@ -556,6 +936,18 @@ pub fn evaluate_node(
             evaluator.output_vector("out", egui::vec2(x, y))
         }
         MyNodeTemplate::MakeScalar => {
+            let value = evaluator.input_scalar("value")?;
+            evaluator.output_scalar("out", value)
+        }
+        MyNodeTemplate::CreateColorCamera => {
+            let input_config = evaluator.input_queue("inputConfig")?;
+            evaluator.output_queue("video", input_config)
+        }
+        MyNodeTemplate::CreateXLinkOut => {
+            let input = evaluator.input_queue("input")?;
+            evaluator.output_queue("output", input)
+        }
+        _ => {
             let value = evaluator.input_scalar("value")?;
             evaluator.output_scalar("out", value)
         }
