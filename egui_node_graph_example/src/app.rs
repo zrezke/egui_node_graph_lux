@@ -406,72 +406,58 @@ impl NodeTemplateTrait for MyNodeTemplate {
         _user_state: &mut Self::UserState,
         node_id: NodeId,
     ) {
-        let build_detection_network_node =
+        let build_depthai_input =
             |node_id: NodeId,
              graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
+             name: String,
              depthai_node: DepthaiNode| {
                 graph.add_input_param(
                     node_id,
-                    "input".into(),
+                    name,
                     MyDataType::Queue(depthai_node),
                     MyValueType::Queue(depthai_node),
                     InputParamKind::ConnectionOrConstant,
                     true,
                 );
-                graph.add_output_param(node_id, "out".into(), MyDataType::Queue(depthai_node));
-                graph.add_output_param(
-                    node_id,
-                    "outNetwork".into(),
-                    MyDataType::Queue(depthai_node),
-                );
+            };
+        let build_depthai_output =
+            |node_id: NodeId,
+             graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
+             name: String,
+             depthai_node: DepthaiNode| {
+                graph.add_output_param(node_id, name, MyDataType::Queue(depthai_node));
+            };
+
+        let build_detection_network_node =
+            |node_id: NodeId,
+             graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
+             depthai_node: DepthaiNode| {
+                build_depthai_input(node_id, graph, "input".into(), depthai_node);
+                build_depthai_output(node_id, graph, "out".into(), depthai_node);
                 graph.add_output_param(
                     node_id,
                     "passthrough".into(),
                     MyDataType::Queue(depthai_node),
                 );
+                build_depthai_output(node_id, graph, "outNetwork".into(), depthai_node);
             };
 
         let build_spatial_detection_network_node =
             |node_id: NodeId,
              graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
              depthai_node: DepthaiNode| {
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "input".into(), depthai_node);
+                build_depthai_input(node_id, graph, "inputDepth".into(), depthai_node);
+                build_depthai_output(node_id, graph, "out".into(), depthai_node);
+                build_depthai_output(node_id, graph, "boundingBoxMapping".into(), depthai_node);
+                build_depthai_output(node_id, graph, "passthroughDepth".into(), depthai_node);
+                build_depthai_output(
                     node_id,
-                    "input".into(),
-                    MyDataType::Queue(depthai_node),
-                    MyValueType::Queue(depthai_node),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_input_param(
-                    node_id,
-                    "inputDepth".into(),
-                    MyDataType::Queue(depthai_node),
-                    MyValueType::Queue(depthai_node),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_output_param(node_id, "out".into(), MyDataType::Queue(depthai_node));
-                graph.add_output_param(
-                    node_id,
-                    "boundingBoxMapping".into(),
-                    MyDataType::Queue(depthai_node),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "passthroughDepth".into(),
-                    MyDataType::Queue(depthai_node),
-                );
-                graph.add_output_param(
-                    node_id,
+                    graph,
                     "spatialLocationCalculatorOutput".into(),
-                    MyDataType::Queue(depthai_node),
+                    depthai_node,
                 );
-                graph.add_output_param(
-                    node_id,
-                    "passthrough".into(),
-                    MyDataType::Queue(depthai_node),
-                );
+                build_depthai_output(node_id, graph, "passthrough".into(), depthai_node);
             };
 
         // The nodes are created empty by default. This function needs to take
@@ -562,125 +548,67 @@ impl NodeTemplateTrait for MyNodeTemplate {
             }
 
             MyNodeTemplate::CreateColorCamera => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                    MyValueType::Queue(DepthaiNode::ColorCamera),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ColorCamera,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputControl".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                    MyValueType::Queue(DepthaiNode::ColorCamera),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ColorCamera,
                 );
-                graph.add_output_param(
-                    node_id,
-                    "raw".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "isp".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "video".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "still".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "preview".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera),
-                );
+                build_depthai_output(node_id, graph, "raw".into(), DepthaiNode::ColorCamera);
+                build_depthai_output(node_id, graph, "isp".into(), DepthaiNode::ColorCamera);
+                build_depthai_output(node_id, graph, "video".into(), DepthaiNode::ColorCamera);
+                build_depthai_output(node_id, graph, "still".into(), DepthaiNode::ColorCamera);
+                build_depthai_output(node_id, graph, "preview".into(), DepthaiNode::ColorCamera);
             }
             MyNodeTemplate::CreateMonoCamera => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
+                    "inputConfig".into(),
+                    DepthaiNode::MonoCamera,
+                );
+                build_depthai_input(
+                    node_id,
+                    graph,
                     "inputControl".into(),
-                    MyDataType::Queue(DepthaiNode::MonoCamera),
-                    MyValueType::Queue(DepthaiNode::MonoCamera),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::MonoCamera,
                 );
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::MonoCamera {}),
-                );
-                graph.add_output_param(
-                    node_id,
-                    "raw".into(),
-                    MyDataType::Queue(DepthaiNode::MonoCamera {}),
-                );
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::MonoCamera);
             }
 
             MyNodeTemplate::CreateImageManip => {
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "inputImage".into(), DepthaiNode::ImageManip);
+                build_depthai_input(
                     node_id,
-                    "inputImage".into(),
-                    MyDataType::Queue(DepthaiNode::ImageManip),
-                    MyValueType::Queue(DepthaiNode::ImageManip),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_input_param(
-                    node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::ImageManip),
-                    MyValueType::Queue(DepthaiNode::ImageManip),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ImageManip,
                 );
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::ImageManip {}),
-                );
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::ImageManip);
             }
             MyNodeTemplate::CreateVideoEncoder => {
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::VideoEncoder);
+                build_depthai_output(
                     node_id,
-                    "input".into(),
-                    MyDataType::Queue(DepthaiNode::VideoEncoder),
-                    MyValueType::Queue(DepthaiNode::VideoEncoder),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_output_param(
-                    node_id,
+                    graph,
                     "bitstream".into(),
-                    MyDataType::Queue(DepthaiNode::VideoEncoder {}),
+                    DepthaiNode::VideoEncoder,
                 );
             }
             MyNodeTemplate::CreateNeuralNetwork => {
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::NeuralNetwork);
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::NeuralNetwork);
+                build_depthai_output(
                     node_id,
-                    "input".into(),
-                    MyDataType::Queue(DepthaiNode::NeuralNetwork),
-                    MyValueType::Queue(DepthaiNode::NeuralNetwork),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::NeuralNetwork {}),
-                );
-                graph.add_output_param(
-                    node_id,
+                    graph,
                     "passthrough".into(),
-                    MyDataType::Queue(DepthaiNode::NeuralNetwork {}),
+                    DepthaiNode::NeuralNetwork,
                 );
             }
 
@@ -712,284 +640,209 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 );
             }
             MyNodeTemplate::CreateSPIIn => {
-                graph.add_input_param(
-                    node_id,
-                    "SPI (from MCU)".into(),
-                    MyDataType::Queue(DepthaiNode::SPIIn),
-                    MyValueType::Queue(DepthaiNode::SPIIn),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::SPIIn),
-                );
+                build_depthai_input(node_id, graph, "SPI (from MCU)".into(), DepthaiNode::SPIIn);
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::SPIIn);
             }
 
             MyNodeTemplate::CreateSPIOut => {
-                graph.add_input_param(
-                    node_id,
-                    "input".into(),
-                    MyDataType::Queue(DepthaiNode::SPIOut),
-                    MyValueType::Queue(DepthaiNode::SPIOut),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-                graph.add_output_param(
-                    node_id,
-                    "SPI (to MCU)".into(),
-                    MyDataType::Queue(DepthaiNode::SPIOut),
-                );
+                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::SPIOut);
+                build_depthai_output(node_id, graph, "SPI (to MCU)".into(), DepthaiNode::SPIOut);
             }
 
             MyNodeTemplate::CreateXLinkOut => {
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::XLinkOut);
+                build_depthai_output(
                     node_id,
-                    "input".into(),
-                    MyDataType::Queue(DepthaiNode::XLinkOut),
-                    MyValueType::Queue(DepthaiNode::XLinkOut),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
-                );
-
-                graph.add_output_param(
-                    node_id,
-                    "(to host)".into(),
-                    MyDataType::Queue(DepthaiNode::XLinkOut {}),
+                    graph,
+                    "XLink (to host)".into(),
+                    DepthaiNode::XLinkOut,
                 );
             }
             MyNodeTemplate::CreateXLinkIn => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
-                    "(from host)".into(),
-                    MyDataType::Queue(DepthaiNode::XLinkIn),
-                    MyValueType::Queue(DepthaiNode::XLinkIn),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    graph,
+                    "XLink (from host)".into(),
+                    DepthaiNode::XLinkIn,
                 );
-
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::XLinkIn {}),
-                );
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::XLinkIn);
             }
 
             MyNodeTemplate::CreateScript(n_inputs, n_outputs) => {
                 for inp in 0..*n_inputs {
-                    graph.add_input_param(
+                    build_depthai_input(
                         node_id,
+                        graph,
                         format!("in{}", inp).into(),
-                        MyDataType::Queue(DepthaiNode::Script),
-                        MyValueType::Queue(DepthaiNode::Script),
-                        InputParamKind::ConnectionOrConstant,
-                        true,
+                        DepthaiNode::Script,
                     );
                 }
 
                 for out in 0..*n_outputs {
-                    graph.add_output_param(
+                    build_depthai_output(
                         node_id,
+                        graph,
                         format!("out{}", out).into(),
-                        MyDataType::Queue(DepthaiNode::Script {}),
+                        DepthaiNode::Script,
                     );
                 }
             }
             MyNodeTemplate::CreateStereoDepth => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::StereoDepth),
-                    MyValueType::Queue(DepthaiNode::StereoDepth),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::StereoDepth,
                 );
-                graph.add_input_param(
+                build_depthai_input(node_id, graph, "left".into(), DepthaiNode::StereoDepth);
+                build_depthai_input(node_id, graph, "right".into(), DepthaiNode::StereoDepth);
+                build_depthai_output(node_id, graph, "depth".into(), DepthaiNode::StereoDepth);
+                build_depthai_output(node_id, graph, "disparity".into(), DepthaiNode::StereoDepth);
+                build_depthai_output(
                     node_id,
-                    "left".into(),
-                    MyDataType::Queue(DepthaiNode::StereoDepth),
-                    MyValueType::Queue(DepthaiNode::StereoDepth),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    graph,
+                    "rectifiedLeft".into(),
+                    DepthaiNode::StereoDepth,
                 );
-                graph.add_input_param(
+                build_depthai_output(
                     node_id,
-                    "right".into(),
-                    MyDataType::Queue(DepthaiNode::StereoDepth),
-                    MyValueType::Queue(DepthaiNode::StereoDepth),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    graph,
+                    "rectifiedRight".into(),
+                    DepthaiNode::StereoDepth,
                 );
-
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
-                    "depth".into(),
-                    MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                    graph,
+                    "syncedLeft".into(),
+                    DepthaiNode::StereoDepth,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
-                    "disparity".into(),
-                    MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                    graph,
+                    "syncedRight".into(),
+                    DepthaiNode::StereoDepth,
                 );
-                // graph.add_output_param(
-                //     node_id,
-                //     "rectifiedLeft".into(),
-                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
-                // );
-                // graph.add_output_param(
-                //     node_id,
-                //     "rectifiedRight".into(),
-                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
-                // );
-                // graph.add_output_param(
-                //     node_id,
-                //     "syncedLeft".into(),
-                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
-                // );
-                // graph.add_output_param(
-                //     node_id,
-                //     "syncedRight".into(),
-                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
-                // );
-                // graph.add_output_param(
-                //     node_id,
-                //     "confidenceMap".into(),
-                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
-                // );
+                build_depthai_output(
+                    node_id,
+                    graph,
+                    "confidenceMap".into(),
+                    DepthaiNode::StereoDepth,
+                );
                 // TODO(filip): Add more outputs
             }
             MyNodeTemplate::CreateSpatialLocationCalculator => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator),
-                    MyValueType::Queue(DepthaiNode::SpatialLocationCalculator),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::SpatialLocationCalculator,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputDepth".into(),
-                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator),
-                    MyValueType::Queue(DepthaiNode::SpatialLocationCalculator),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::SpatialLocationCalculator,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "out".into(),
-                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator {}),
+                    DepthaiNode::SpatialLocationCalculator,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "passthroughDepth".into(),
-                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator {}),
+                    DepthaiNode::SpatialLocationCalculator,
                 );
             }
             MyNodeTemplate::CreateEdgeDetector => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::EdgeDetector),
-                    MyValueType::Queue(DepthaiNode::EdgeDetector),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::EdgeDetector,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputImage".into(),
-                    MyDataType::Queue(DepthaiNode::EdgeDetector),
-                    MyValueType::Queue(DepthaiNode::EdgeDetector),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::EdgeDetector,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "outputImage".into(),
-                    MyDataType::Queue(DepthaiNode::EdgeDetector {}),
+                    DepthaiNode::EdgeDetector,
                 );
             }
             MyNodeTemplate::CreateFeaureTracker => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputConfig".into(),
-                    MyDataType::Queue(DepthaiNode::FeaureTracker),
-                    MyValueType::Queue(DepthaiNode::FeaureTracker),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::FeaureTracker,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputImage".into(),
-                    MyDataType::Queue(DepthaiNode::FeaureTracker),
-                    MyValueType::Queue(DepthaiNode::FeaureTracker),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::FeaureTracker,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "outputFeatures".into(),
-                    MyDataType::Queue(DepthaiNode::FeaureTracker {}),
+                    DepthaiNode::FeaureTracker,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "passthroughInputImage".into(),
-                    MyDataType::Queue(DepthaiNode::FeaureTracker {}),
+                    DepthaiNode::FeaureTracker,
                 );
             }
             MyNodeTemplate::CreateObjectTracker => {
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputDetectionFrame".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker),
-                    MyValueType::Queue(DepthaiNode::ObjectTracker),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ObjectTracker,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputDetections".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker),
-                    MyValueType::Queue(DepthaiNode::ObjectTracker),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ObjectTracker,
                 );
-                graph.add_input_param(
+                build_depthai_input(
                     node_id,
+                    graph,
                     "inputTrackerFrame".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker),
-                    MyValueType::Queue(DepthaiNode::ObjectTracker),
-                    InputParamKind::ConnectionOrConstant,
-                    true,
+                    DepthaiNode::ObjectTracker,
                 );
-                graph.add_output_param(
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::ObjectTracker);
+                build_depthai_output(
                     node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
-                );
-                graph.add_output_param(
-                    node_id,
+                    graph,
                     "passthroughDetectionFrame".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                    DepthaiNode::ObjectTracker,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "passthroughDetections".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                    DepthaiNode::ObjectTracker,
                 );
-                graph.add_output_param(
+                build_depthai_output(
                     node_id,
+                    graph,
                     "passthroughTrackerFrame".into(),
-                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                    DepthaiNode::ObjectTracker,
                 );
             }
             MyNodeTemplate::CreateIMU => {
-                graph.add_output_param(
-                    node_id,
-                    "out".into(),
-                    MyDataType::Queue(DepthaiNode::IMU {}),
-                );
+                build_depthai_output(node_id, graph, "out".into(), DepthaiNode::IMU {});
             }
             MyNodeTemplate::CreateSpatialDetectionNetwork => {
                 build_spatial_detection_network_node(
