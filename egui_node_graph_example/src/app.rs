@@ -1,4 +1,8 @@
-use std::{borrow::Cow, collections::HashMap};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 use eframe::egui::{self, DragValue, TextStyle};
 use egui_node_graph::*;
@@ -1062,6 +1066,245 @@ impl NodeGraphExample {
         }
     }
 }
+use serde;
+use serde_json;
+
+#[derive(serde::Deserialize, serde::Serialize)]
+pub enum IOKind {
+    Output,
+    Input,
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
+pub struct IOInfo {
+    blocking: bool,
+    group: String,
+    id: i32,
+    name: String,
+    #[serde(rename = "queueSize")]
+    queue_size: i32,
+    #[serde(rename = "type")]
+    kind: i32,
+    #[serde(rename = "waitForMessage")]
+    wait_for_message: bool,
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
+pub struct Node {
+    id: i32,
+    #[serde(rename = "ioInfo")]
+    io_info: Vec<((String, String), IOInfo)>,
+    name: String,
+    properties: Vec<i32>,
+
+    #[serde(skip)]
+    /// This is not a part of the schema dump, it's an internal field used when laying out the graph
+    position: egui::Pos2,
+}
+
+impl Node {
+    fn set_pos(&mut self, x: f32, y: f32) {
+        self.position = egui::pos2(x, y);
+    }
+
+    fn get_pos(&self) -> egui::Pos2 {
+        self.position
+    }
+
+    fn template(&self) -> MyNodeTemplate {
+        match self.name.as_str() {
+            "ColorCamera" => MyNodeTemplate::CreateColorCamera,
+            "MonoCamera" => MyNodeTemplate::CreateMonoCamera,
+            "ImageManip" => MyNodeTemplate::CreateImageManip,
+            "VideoEncoder" => MyNodeTemplate::CreateVideoEncoder,
+
+            "NeuralNetwork" => MyNodeTemplate::CreateNeuralNetwork,
+            "DetectionNetwork" => MyNodeTemplate::CreateDetectionNetwork,
+            "MobileNetDetectionNetwork" => MyNodeTemplate::CreateMobileNetDetectionNetwork,
+            "MobileNetSpatialDetectionNetwork" => {
+                MyNodeTemplate::CreateMobileNetSpatialDetectionNetwork
+            }
+            "YoloDetectionNetwork" => MyNodeTemplate::CreateYoloDetectionNetwork,
+            "YoloSpatialDetectionNetwork" => MyNodeTemplate::CreateYoloSpatialDetectionNetwork,
+
+            "SPIIn" => MyNodeTemplate::CreateSPIIn,
+            "SPIOut" => MyNodeTemplate::CreateSPIOut,
+
+            "XLinkIn" => MyNodeTemplate::CreateXLinkIn,
+            "XLinkOut" => MyNodeTemplate::CreateXLinkOut,
+
+            "Script" => MyNodeTemplate::CreateScript(1, 1),
+
+            "StereoDepth" => MyNodeTemplate::CreateStereoDepth,
+            "SpatialLocationCalculator" => MyNodeTemplate::CreateSpatialLocationCalculator,
+
+            "EdgeDetector" => MyNodeTemplate::CreateEdgeDetector,
+            "FeaureTracker" => MyNodeTemplate::CreateFeaureTracker,
+            "ObjectTracker" => MyNodeTemplate::CreateObjectTracker,
+            "IMU" => MyNodeTemplate::CreateIMU,
+            _ => panic!("Unknown node: {:?}", self.name),
+        }
+    }
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct Connection {
+    #[serde(rename = "node1Id")]
+    source_node: i32,
+    #[serde(rename = "node1Output")]
+    source_node_output: String,
+    #[serde(rename = "node2Id")]
+    dest_node: i32,
+    #[serde(rename = "node2Input")]
+    dest_node_input: String,
+    #[serde(rename = "node2InputGroup")]
+    dest_node_input_group: String,
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct Schema {
+    nodes: Vec<(i32, Node)>,
+    connections: Vec<Connection>,
+}
+
+impl Schema {
+    fn all_connections(&self, node: &Node) -> Vec<&Connection> {
+        self.connections
+            .iter()
+            .filter(|c| c.source_node == node.id || c.dest_node == node.id)
+            .collect()
+    }
+
+    fn get_nodes_connected_to_outputs(&self, node: &Node) -> Vec<&Node> {
+        self.connections
+            .iter()
+            .filter(|c| c.source_node == node.id)
+            .map(|c| {
+                &self
+                    .nodes
+                    .iter()
+                    .find(|(id, _)| *id == c.dest_node)
+                    .unwrap()
+                    .1
+            })
+            .collect::<Vec<_>>()
+    }
+
+    fn update_node_rank(&self, node: i32, nodes_rank: &mut HashMap<i32, i32>) {
+        println!("Updating node rank for node: {:?}", node);
+        let mut connected_nodes = HashSet::new();
+        let Some(node_name) = self
+            .nodes
+            .iter()
+            .find(|(id, _)| *id == node).map(|(_, node)| node.name.clone()) else {
+                return;
+            };
+
+        for ((_, _), io_info) in &self
+            .nodes
+            .iter()
+            .find(|(id, _)| *id == node)
+            .unwrap()
+            .1
+            .io_info
+        {
+            println!(
+                "IO kind: {:?}, Name: {:?}, for node: {node_name:?}",
+                io_info.kind, io_info.name,
+            );
+            if io_info.kind == IOKind::Output as i32 {
+                connected_nodes.insert(io_info.id);
+            }
+        }
+        println!(
+            "Connected nodes: {:?} for node: {:?}",
+            connected_nodes, node_name
+        );
+
+        let rank = nodes_rank.get(&node).unwrap_or(&0) + 1;
+        for n in connected_nodes {
+            if let Some(n_rank) = nodes_rank.get_mut(&n) {
+                *n_rank = std::cmp::max(*n_rank, rank);
+            } else {
+                nodes_rank.insert(n, rank);
+            }
+            self.update_node_rank(n, nodes_rank);
+        }
+    }
+
+    fn compute_node_rank(&self, nodes: &Vec<Node>) -> HashMap<i32, i32> {
+        let mut nodes_rank = HashMap::new();
+        for node in nodes {
+            nodes_rank.insert(node.id, 0);
+            self.update_node_rank(node.id, &mut nodes_rank);
+        }
+        nodes_rank
+    }
+
+    pub fn auto_layout_nodes(&mut self) {
+        const START_NODES: [&str; 3] = ["ColorCamera", "XLinkIn", "MonoCamera"];
+        let mut start_nodes = Vec::new();
+        for (id, node) in &self.nodes {
+            if START_NODES.contains(&node.name.as_str()) {
+                start_nodes.push(node.clone());
+            }
+        }
+
+        let node_rank = self.compute_node_rank(&start_nodes);
+        println!("Node rank: {:?}", node_rank);
+        let mut rank_map = HashMap::new();
+        for (id, rank) in node_rank.iter() {
+            let Some(node_id) = self.nodes
+            .iter()
+            .find(|(node_id, _)| node_id == id).map(|(node_id, _)| *node_id) else {
+                continue;
+            };
+            rank_map.entry(rank).or_insert(Vec::new()).push(node_id);
+        }
+
+        let mut current_x = 0.0;
+        let node_height = 120.0;
+        println!("Rank map: {:?}", rank_map);
+        for rank in 0..rank_map.len() {
+            let ranked_nodes = rank_map.get(&(rank as i32)).unwrap();
+            let max_width = 150.0;
+            current_x += max_width;
+            let mut current_y = 0.0;
+            for (idx, node) in ranked_nodes.iter().enumerate() {
+                let node = &mut self.nodes.iter_mut().find(|(id, _)| id == node).unwrap().1;
+                let dy = node.get_pos().y.max(node_height);
+                current_y += if idx == 0 { 0.0 } else { dy };
+                node.set_pos(current_x, current_y);
+                current_y += dy * 0.5 + 10.0;
+            }
+        }
+    }
+}
+
+impl NodeGraphExample {
+    /// Loads json schema dump into the graph
+    fn create_nodes_from_dump(&mut self) {
+        const DUMP_FILE: &str = "schema.json";
+        let dump = std::fs::read_to_string(DUMP_FILE).unwrap();
+        let mut schema: Schema = serde_json::from_str(dump.as_str()).unwrap();
+        schema.auto_layout_nodes();
+        let graph = &mut self.state.graph;
+        for (id, node) in schema.nodes {
+            let template = node.template();
+            let graph_node =
+                graph.add_node(node.name.clone(), MyNodeData { template }, |g, node_id| {
+                    template.build_node(g, &mut self.user_state, node_id)
+                });
+
+            self.state.node_positions.insert(graph_node, node.get_pos());
+            self.state.node_order.push(graph_node);
+            // println!(
+            //     "{}: {:?} - Pos: ({:?}, {:?})",
+            //     id, node.name, node.position.x, node.position.y
+            // );
+        }
+    }
+}
 
 impl eframe::App for NodeGraphExample {
     #[cfg(feature = "persistence")]
@@ -1102,33 +1345,7 @@ impl eframe::App for NodeGraphExample {
 
         // No nodes, create from json
         if self.state.node_positions.is_empty() {
-            // Create color cam and xlink out
-
-            let color_cam_template = MyNodeTemplate::CreateColorCamera {};
-            let color_cam = self.state.graph.add_node(
-                "Color Camera".to_owned(),
-                MyNodeData {
-                    template: color_cam_template,
-                },
-                |g, node_id| color_cam_template.build_node(g, &mut self.user_state, node_id),
-            );
-            self.state
-                .node_positions
-                .insert(color_cam, egui::emath::Pos2::new(0.0, 0.0));
-            self.state.node_order.push(color_cam);
-
-            let xlinnk_out_template = MyNodeTemplate::CreateXLinkOut {};
-            let xlink_out = self.state.graph.add_node(
-                "Xlink Out".to_owned(),
-                MyNodeData {
-                    template: xlinnk_out_template,
-                },
-                |g, node_id| xlinnk_out_template.build_node(g, &mut self.user_state, node_id),
-            );
-            self.state
-                .node_positions
-                .insert(xlink_out, egui::emath::Pos2::new(0.0, 1.0));
-            self.state.node_order.push(xlink_out);
+            self.create_nodes_from_dump();
         }
 
         if let Some(node) = self.user_state.active_node {
