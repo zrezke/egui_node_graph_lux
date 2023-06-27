@@ -85,13 +85,24 @@ impl DepthaiNode {
 /// `DataType`s are what defines the possible range of connections when
 /// attaching two ports together. The graph UI will make sure to not allow
 /// attaching incompatible datatypes.
-#[derive(PartialEq, Eq)]
+#[derive(Eq)]
 #[cfg_attr(feature = "persistence", derive(serde::Serialize, serde::Deserialize))]
 pub enum MyDataType {
     Scalar,
     Vec2,
 
     Queue(DepthaiNode),
+}
+
+impl PartialEq for MyDataType {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Scalar, Self::Scalar) => true,
+            (Self::Vec2, Self::Vec2) => true,
+            (Self::Queue(_), Self::Queue(_)) => true,
+            _ => false,
+        }
+    }
 }
 
 /// In the graph, input parameters can optionally have a constant value. This
@@ -180,7 +191,7 @@ pub enum MyNodeTemplate {
     CreateSPIOut,
     CreateXLinkOut,
 
-    CreateScript,
+    CreateScript(i32, i32), // (n inputs, n outputs)
 
     CreateStereoDepth,
     CreateSpatialLocationCalculator,
@@ -354,7 +365,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
             MyNodeTemplate::CreateSPIOut => "Create SPI Out",
             MyNodeTemplate::CreateXLinkOut => "Create XLink Out",
 
-            MyNodeTemplate::CreateScript => "Create Script",
+            MyNodeTemplate::CreateScript(_, _) => "Create Script",
 
             MyNodeTemplate::CreateStereoDepth => "Create Stereo Depth",
             MyNodeTemplate::CreateSpatialLocationCalculator => "Create Spatial Location Calculator",
@@ -395,6 +406,74 @@ impl NodeTemplateTrait for MyNodeTemplate {
         _user_state: &mut Self::UserState,
         node_id: NodeId,
     ) {
+        let build_detection_network_node =
+            |node_id: NodeId,
+             graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
+             depthai_node: DepthaiNode| {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(depthai_node),
+                    MyValueType::Queue(depthai_node),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(node_id, "out".into(), MyDataType::Queue(depthai_node));
+                graph.add_output_param(
+                    node_id,
+                    "outNetwork".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthrough".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+            };
+
+        let build_spatial_detection_network_node =
+            |node_id: NodeId,
+             graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
+             depthai_node: DepthaiNode| {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(depthai_node),
+                    MyValueType::Queue(depthai_node),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputDepth".into(),
+                    MyDataType::Queue(depthai_node),
+                    MyValueType::Queue(depthai_node),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(node_id, "out".into(), MyDataType::Queue(depthai_node));
+                graph.add_output_param(
+                    node_id,
+                    "boundingBoxMapping".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughDepth".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "spatialLocationCalculatorOutput".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthrough".into(),
+                    MyDataType::Queue(depthai_node),
+                );
+            };
+
         // The nodes are created empty by default. This function needs to take
         // care of creating the desired inputs and outputs based on the template
 
@@ -491,16 +570,44 @@ impl NodeTemplateTrait for MyNodeTemplate {
                     InputParamKind::ConnectionOrConstant,
                     true,
                 );
+                graph.add_input_param(
+                    node_id,
+                    "inputControl".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                    MyValueType::Queue(DepthaiNode::ColorCamera),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "raw".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "isp".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                );
                 graph.add_output_param(
                     node_id,
                     "video".into(),
-                    MyDataType::Queue(DepthaiNode::ColorCamera {}),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "still".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "preview".into(),
+                    MyDataType::Queue(DepthaiNode::ColorCamera),
                 );
             }
             MyNodeTemplate::CreateMonoCamera => {
                 graph.add_input_param(
                     node_id,
-                    "inputConfig".into(),
+                    "inputControl".into(),
                     MyDataType::Queue(DepthaiNode::MonoCamera),
                     MyValueType::Queue(DepthaiNode::MonoCamera),
                     InputParamKind::ConnectionOrConstant,
@@ -508,10 +615,134 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 );
                 graph.add_output_param(
                     node_id,
-                    "video".into(),
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::MonoCamera {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "raw".into(),
                     MyDataType::Queue(DepthaiNode::MonoCamera {}),
                 );
             }
+
+            MyNodeTemplate::CreateImageManip => {
+                graph.add_input_param(
+                    node_id,
+                    "inputImage".into(),
+                    MyDataType::Queue(DepthaiNode::ImageManip),
+                    MyValueType::Queue(DepthaiNode::ImageManip),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::ImageManip),
+                    MyValueType::Queue(DepthaiNode::ImageManip),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::ImageManip {}),
+                );
+            }
+            MyNodeTemplate::CreateVideoEncoder => {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(DepthaiNode::VideoEncoder),
+                    MyValueType::Queue(DepthaiNode::VideoEncoder),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "bitstream".into(),
+                    MyDataType::Queue(DepthaiNode::VideoEncoder {}),
+                );
+            }
+            MyNodeTemplate::CreateNeuralNetwork => {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(DepthaiNode::NeuralNetwork),
+                    MyValueType::Queue(DepthaiNode::NeuralNetwork),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::NeuralNetwork {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthrough".into(),
+                    MyDataType::Queue(DepthaiNode::NeuralNetwork {}),
+                );
+            }
+
+            MyNodeTemplate::CreateDetectionNetwork => {
+                build_detection_network_node(node_id, graph, DepthaiNode::DetectionNetwork {});
+            }
+            MyNodeTemplate::CreateMobileNetDetectionNetwork => {
+                build_detection_network_node(
+                    node_id,
+                    graph,
+                    DepthaiNode::MobileNetDetectionNetwork {},
+                );
+            }
+            MyNodeTemplate::CreateMobileNetSpatialDetectionNetwork => {
+                build_spatial_detection_network_node(
+                    node_id,
+                    graph,
+                    DepthaiNode::MobileNetSpatialDetectionNetwork {},
+                );
+            }
+            MyNodeTemplate::CreateYoloDetectionNetwork => {
+                build_detection_network_node(node_id, graph, DepthaiNode::YoloDetectionNetwork {});
+            }
+            MyNodeTemplate::CreateYoloSpatialDetectionNetwork => {
+                build_spatial_detection_network_node(
+                    node_id,
+                    graph,
+                    DepthaiNode::YoloSpatialDetectionNetwork {},
+                );
+            }
+            MyNodeTemplate::CreateSPIIn => {
+                graph.add_input_param(
+                    node_id,
+                    "SPI (from MCU)".into(),
+                    MyDataType::Queue(DepthaiNode::SPIIn),
+                    MyValueType::Queue(DepthaiNode::SPIIn),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::SPIIn),
+                );
+            }
+
+            MyNodeTemplate::CreateSPIOut => {
+                graph.add_input_param(
+                    node_id,
+                    "input".into(),
+                    MyDataType::Queue(DepthaiNode::SPIOut),
+                    MyValueType::Queue(DepthaiNode::SPIOut),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "SPI (to MCU)".into(),
+                    MyDataType::Queue(DepthaiNode::SPIOut),
+                );
+            }
+
             MyNodeTemplate::CreateXLinkOut => {
                 graph.add_input_param(
                     node_id,
@@ -524,12 +755,248 @@ impl NodeTemplateTrait for MyNodeTemplate {
 
                 graph.add_output_param(
                     node_id,
-                    "output".into(),
+                    "(to host)".into(),
                     MyDataType::Queue(DepthaiNode::XLinkOut {}),
                 );
             }
-            _ => {
-                todo!("Implement the rest of the node templates");
+            MyNodeTemplate::CreateXLinkIn => {
+                graph.add_input_param(
+                    node_id,
+                    "(from host)".into(),
+                    MyDataType::Queue(DepthaiNode::XLinkIn),
+                    MyValueType::Queue(DepthaiNode::XLinkIn),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::XLinkIn {}),
+                );
+            }
+
+            MyNodeTemplate::CreateScript(n_inputs, n_outputs) => {
+                for inp in 0..*n_inputs {
+                    graph.add_input_param(
+                        node_id,
+                        format!("in{}", inp).into(),
+                        MyDataType::Queue(DepthaiNode::Script),
+                        MyValueType::Queue(DepthaiNode::Script),
+                        InputParamKind::ConnectionOrConstant,
+                        true,
+                    );
+                }
+
+                for out in 0..*n_outputs {
+                    graph.add_output_param(
+                        node_id,
+                        format!("out{}", out).into(),
+                        MyDataType::Queue(DepthaiNode::Script {}),
+                    );
+                }
+            }
+            MyNodeTemplate::CreateStereoDepth => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::StereoDepth),
+                    MyValueType::Queue(DepthaiNode::StereoDepth),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "left".into(),
+                    MyDataType::Queue(DepthaiNode::StereoDepth),
+                    MyValueType::Queue(DepthaiNode::StereoDepth),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "right".into(),
+                    MyDataType::Queue(DepthaiNode::StereoDepth),
+                    MyValueType::Queue(DepthaiNode::StereoDepth),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+
+                graph.add_output_param(
+                    node_id,
+                    "depth".into(),
+                    MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "disparity".into(),
+                    MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                );
+                // graph.add_output_param(
+                //     node_id,
+                //     "rectifiedLeft".into(),
+                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                // );
+                // graph.add_output_param(
+                //     node_id,
+                //     "rectifiedRight".into(),
+                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                // );
+                // graph.add_output_param(
+                //     node_id,
+                //     "syncedLeft".into(),
+                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                // );
+                // graph.add_output_param(
+                //     node_id,
+                //     "syncedRight".into(),
+                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                // );
+                // graph.add_output_param(
+                //     node_id,
+                //     "confidenceMap".into(),
+                //     MyDataType::Queue(DepthaiNode::StereoDepth {}),
+                // );
+                // TODO(filip): Add more outputs
+            }
+            MyNodeTemplate::CreateSpatialLocationCalculator => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator),
+                    MyValueType::Queue(DepthaiNode::SpatialLocationCalculator),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputDepth".into(),
+                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator),
+                    MyValueType::Queue(DepthaiNode::SpatialLocationCalculator),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughDepth".into(),
+                    MyDataType::Queue(DepthaiNode::SpatialLocationCalculator {}),
+                );
+            }
+            MyNodeTemplate::CreateEdgeDetector => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::EdgeDetector),
+                    MyValueType::Queue(DepthaiNode::EdgeDetector),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputImage".into(),
+                    MyDataType::Queue(DepthaiNode::EdgeDetector),
+                    MyValueType::Queue(DepthaiNode::EdgeDetector),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "outputImage".into(),
+                    MyDataType::Queue(DepthaiNode::EdgeDetector {}),
+                );
+            }
+            MyNodeTemplate::CreateFeaureTracker => {
+                graph.add_input_param(
+                    node_id,
+                    "inputConfig".into(),
+                    MyDataType::Queue(DepthaiNode::FeaureTracker),
+                    MyValueType::Queue(DepthaiNode::FeaureTracker),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputImage".into(),
+                    MyDataType::Queue(DepthaiNode::FeaureTracker),
+                    MyValueType::Queue(DepthaiNode::FeaureTracker),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "outputFeatures".into(),
+                    MyDataType::Queue(DepthaiNode::FeaureTracker {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughInputImage".into(),
+                    MyDataType::Queue(DepthaiNode::FeaureTracker {}),
+                );
+            }
+            MyNodeTemplate::CreateObjectTracker => {
+                graph.add_input_param(
+                    node_id,
+                    "inputDetectionFrame".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker),
+                    MyValueType::Queue(DepthaiNode::ObjectTracker),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputDetections".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker),
+                    MyValueType::Queue(DepthaiNode::ObjectTracker),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_input_param(
+                    node_id,
+                    "inputTrackerFrame".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker),
+                    MyValueType::Queue(DepthaiNode::ObjectTracker),
+                    InputParamKind::ConnectionOrConstant,
+                    true,
+                );
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughDetectionFrame".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughDetections".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                );
+                graph.add_output_param(
+                    node_id,
+                    "passthroughTrackerFrame".into(),
+                    MyDataType::Queue(DepthaiNode::ObjectTracker {}),
+                );
+            }
+            MyNodeTemplate::CreateIMU => {
+                graph.add_output_param(
+                    node_id,
+                    "out".into(),
+                    MyDataType::Queue(DepthaiNode::IMU {}),
+                );
+            }
+            MyNodeTemplate::CreateSpatialDetectionNetwork => {
+                build_spatial_detection_network_node(
+                    node_id,
+                    graph,
+                    DepthaiNode::SpatialDetectionNetwork {},
+                );
             }
         }
     }
@@ -688,7 +1155,7 @@ impl NodeDataTrait for MyNodeData {
                 egui::Color32::from_rgb(230, 176, 170),
                 egui::Color32::from_rgb(0, 0, 0),
             )),
-            MyNodeTemplate::CreateScript => Some((
+            MyNodeTemplate::CreateScript(..) => Some((
                 egui::Color32::from_rgb(249, 231, 159),
                 egui::Color32::from_rgb(0, 0, 0),
             )),
