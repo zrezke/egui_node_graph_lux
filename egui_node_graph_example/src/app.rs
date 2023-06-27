@@ -165,7 +165,7 @@ impl MyValueType {
 /// NodeTemplate is a mechanism to define node templates. It's what the graph
 /// will display in the "new node" popup. The user code needs to tell the
 /// library how to convert a NodeTemplate into a Node.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 #[cfg_attr(feature = "persistence", derive(serde::Serialize, serde::Deserialize))]
 pub enum MyNodeTemplate {
     MakeScalar,
@@ -195,7 +195,7 @@ pub enum MyNodeTemplate {
     CreateSPIOut,
     CreateXLinkOut,
 
-    CreateScript(i32, i32), // (n inputs, n outputs)
+    CreateScript(Vec<String>, Vec<String>), // (input names, output names)
 
     CreateStereoDepth,
     CreateSpatialLocationCalculator,
@@ -401,7 +401,9 @@ impl NodeTemplateTrait for MyNodeTemplate {
     }
 
     fn user_data(&self, _user_state: &mut Self::UserState) -> Self::NodeData {
-        MyNodeData { template: *self }
+        MyNodeData {
+            template: self.clone(),
+        }
     }
 
     fn build_node(
@@ -436,7 +438,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
             |node_id: NodeId,
              graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
              depthai_node: DepthaiNode| {
-                build_depthai_input(node_id, graph, "input".into(), depthai_node);
+                build_depthai_input(node_id, graph, "in".into(), depthai_node);
                 build_depthai_output(node_id, graph, "out".into(), depthai_node);
                 graph.add_output_param(
                     node_id,
@@ -450,7 +452,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
             |node_id: NodeId,
              graph: &mut Graph<Self::NodeData, Self::DataType, Self::ValueType>,
              depthai_node: DepthaiNode| {
-                build_depthai_input(node_id, graph, "input".into(), depthai_node);
+                build_depthai_input(node_id, graph, "in".into(), depthai_node);
                 build_depthai_input(node_id, graph, "inputDepth".into(), depthai_node);
                 build_depthai_output(node_id, graph, "out".into(), depthai_node);
                 build_depthai_output(node_id, graph, "boundingBoxMapping".into(), depthai_node);
@@ -597,7 +599,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 build_depthai_output(node_id, graph, "out".into(), DepthaiNode::ImageManip);
             }
             MyNodeTemplate::CreateVideoEncoder => {
-                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::VideoEncoder);
+                build_depthai_input(node_id, graph, "in".into(), DepthaiNode::VideoEncoder);
                 build_depthai_output(
                     node_id,
                     graph,
@@ -606,7 +608,7 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 );
             }
             MyNodeTemplate::CreateNeuralNetwork => {
-                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::NeuralNetwork);
+                build_depthai_input(node_id, graph, "in".into(), DepthaiNode::NeuralNetwork);
                 build_depthai_output(node_id, graph, "out".into(), DepthaiNode::NeuralNetwork);
                 build_depthai_output(
                     node_id,
@@ -649,12 +651,12 @@ impl NodeTemplateTrait for MyNodeTemplate {
             }
 
             MyNodeTemplate::CreateSPIOut => {
-                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::SPIOut);
+                build_depthai_input(node_id, graph, "in".into(), DepthaiNode::SPIOut);
                 build_depthai_output(node_id, graph, "SPI (to MCU)".into(), DepthaiNode::SPIOut);
             }
 
             MyNodeTemplate::CreateXLinkOut => {
-                build_depthai_input(node_id, graph, "input".into(), DepthaiNode::XLinkOut);
+                build_depthai_input(node_id, graph, "in".into(), DepthaiNode::XLinkOut);
                 build_depthai_output(
                     node_id,
                     graph,
@@ -672,23 +674,13 @@ impl NodeTemplateTrait for MyNodeTemplate {
                 build_depthai_output(node_id, graph, "out".into(), DepthaiNode::XLinkIn);
             }
 
-            MyNodeTemplate::CreateScript(n_inputs, n_outputs) => {
-                for inp in 0..*n_inputs {
-                    build_depthai_input(
-                        node_id,
-                        graph,
-                        format!("in{}", inp).into(),
-                        DepthaiNode::Script,
-                    );
+            MyNodeTemplate::CreateScript(input_names, output_names) => {
+                for inp in input_names {
+                    build_depthai_input(node_id, graph, inp.into(), DepthaiNode::Script);
                 }
 
-                for out in 0..*n_outputs {
-                    build_depthai_output(
-                        node_id,
-                        graph,
-                        format!("out{}", out).into(),
-                        DepthaiNode::Script,
-                    );
+                for out in output_names {
+                    build_depthai_output(node_id, graph, out.into(), DepthaiNode::Script);
                 }
             }
             MyNodeTemplate::CreateStereoDepth => {
@@ -1133,7 +1125,23 @@ impl Node {
             "XLinkIn" => MyNodeTemplate::CreateXLinkIn,
             "XLinkOut" => MyNodeTemplate::CreateXLinkOut,
 
-            "Script" => MyNodeTemplate::CreateScript(1, 1),
+            "Script" => {
+                let mut input_names = Vec::new();
+                let mut output_names = Vec::new();
+
+                for ((group, _), io_info) in &self.io_info {
+                    if group != "io" {
+                        continue;
+                    }
+                    if io_info.kind == IOKind::Input as i32 || io_info.kind == 3 {
+                        input_names.push(io_info.name.clone());
+                    } else {
+                        output_names.push(io_info.name.clone());
+                    }
+                }
+
+                MyNodeTemplate::CreateScript(input_names, output_names)
+            }
 
             "StereoDepth" => MyNodeTemplate::CreateStereoDepth,
             "SpatialLocationCalculator" => MyNodeTemplate::CreateSpatialLocationCalculator,
@@ -1147,7 +1155,7 @@ impl Node {
     }
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct Connection {
     #[serde(rename = "node1Id")]
     source_node: i32,
@@ -1289,19 +1297,74 @@ impl NodeGraphExample {
         let mut schema: Schema = serde_json::from_str(dump.as_str()).unwrap();
         schema.auto_layout_nodes();
         let graph = &mut self.state.graph;
+
+        let mut node_id_to_graph_node_id = HashMap::new();
         for (id, node) in schema.nodes {
             let template = node.template();
-            let graph_node =
-                graph.add_node(node.name.clone(), MyNodeData { template }, |g, node_id| {
-                    template.build_node(g, &mut self.user_state, node_id)
-                });
-
+            let graph_node = graph.add_node(
+                node.name.clone(),
+                MyNodeData {
+                    template: template.clone(),
+                },
+                |g, node_id| template.build_node(g, &mut self.user_state, node_id),
+            );
+            node_id_to_graph_node_id.insert(id, graph_node.clone());
+            println!(
+                "Node: {:?} : Outputs: {:?}",
+                node.name,
+                graph
+                    .nodes
+                    .get(graph_node)
+                    .unwrap()
+                    .outputs
+                    .iter()
+                    .map(|(name, _)| name.clone())
+            );
             self.state.node_positions.insert(graph_node, node.get_pos());
             self.state.node_order.push(graph_node);
-            // println!(
-            //     "{}: {:?} - Pos: ({:?}, {:?})",
-            //     id, node.name, node.position.x, node.position.y
-            // );
+        }
+        // Now create connections
+        for connection in schema.connections {
+            println!("Creating connection: {connection:?}");
+
+            let source_node = node_id_to_graph_node_id
+                .get(&connection.source_node)
+                .unwrap()
+                .clone();
+            let dest_node = node_id_to_graph_node_id
+                .get(&connection.dest_node)
+                .unwrap()
+                .clone();
+
+            let source_node_output = graph
+                .nodes
+                .get(source_node)
+                .unwrap()
+                .outputs
+                .iter()
+                .find(|(name, conn_id)| {
+                    println!(
+                        "Checking src {name:?} == {:?}",
+                        connection.source_node_output
+                    );
+                    name == &connection.source_node_output
+                })
+                .unwrap()
+                .1;
+            let dest_node_input = graph
+                .nodes
+                .get(dest_node)
+                .unwrap()
+                .inputs
+                .iter()
+                .find(|(name, conn_id)| {
+                    println!("Checking dst {name:?} == {:?}", connection.dest_node_input);
+                    name == &connection.dest_node_input
+                })
+                .unwrap()
+                .1;
+
+            graph.add_connection(source_node_output, dest_node_input);
         }
     }
 }
@@ -1481,7 +1544,7 @@ pub fn evaluate_node(
             evaluator.output_queue("video", input_config)
         }
         MyNodeTemplate::CreateXLinkOut => {
-            let input = evaluator.input_queue("input")?;
+            let input = evaluator.input_queue("in")?;
             evaluator.output_queue("output", input)
         }
         _ => {
