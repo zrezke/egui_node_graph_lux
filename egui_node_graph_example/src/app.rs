@@ -1064,7 +1064,7 @@ use serde_json;
 #[derive(serde::Deserialize, serde::Serialize)]
 pub enum IOKind {
     Output,
-    Input,
+    Input = 3,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
@@ -1133,7 +1133,7 @@ impl Node {
                     if group != "io" {
                         continue;
                     }
-                    if io_info.kind == IOKind::Input as i32 || io_info.kind == 3 {
+                    if io_info.kind == IOKind::Input as i32 {
                         input_names.push(io_info.name.clone());
                     } else {
                         output_names.push(io_info.name.clone());
@@ -1198,45 +1198,82 @@ impl Schema {
             .collect::<Vec<_>>()
     }
 
-    fn update_node_rank(&self, node: i32, nodes_rank: &mut HashMap<i32, i32>) {
-        println!("Updating node rank for node: {:?}", node);
-        let mut connected_nodes = HashSet::new();
-        let Some(node_name) = self
+    // fn update_node_rank(&self, node: i32, nodes_rank: &mut HashMap<i32, i32>) {
+    //     println!("Updating node rank for node: {:?}", node);
+    //     let Some(node_name) = self
+    //         .nodes
+    //         .iter()
+    //         .find(|(id, _)| *id == node).map(|(_, node)| node.name.clone()) else {
+    //             return;
+    //         };
+
+    //     let mut connected_nodes = HashSet::new();
+    //     for ((_, _), io_info) in &self
+    //         .nodes
+    //         .iter()
+    //         .find(|(id, _)| *id == node)
+    //         .unwrap()
+    //         .1
+    //         .io_info
+    //     {
+    //         println!(
+    //             "IO kind: {:?}, Name: {:?}, for node: {node_name:?}",
+    //             io_info.kind, io_info.name,
+    //         );
+    //         if io_info.kind == IOKind::Output as i32 {
+    //             connected_nodes.insert(io_info.id);
+    //         }
+    //     }
+    //     println!(
+    //         "Connected nodes: {:?} for node: {:?}",
+    //         connected_nodes, node_name
+    //     );
+
+    //     let rank = nodes_rank.get(&node).unwrap_or(&0) + 1;
+    //     for n in connected_nodes {
+    //         if let Some(n_rank) = nodes_rank.get_mut(&n) {
+    //             *n_rank = std::cmp::max(*n_rank, rank);
+    //         } else {
+    //             nodes_rank.insert(n, rank);
+    //         }
+    //         self.update_node_rank(n, nodes_rank);
+    //     }
+    // }
+
+    fn update_node_rank(
+        &self,
+        node_id: i32,
+        nodes_rank: &mut HashMap<i32, i32>,
+        visited_connections: &mut HashSet<(i32, i32)>,
+    ) {
+        let Some(node) = self
             .nodes
             .iter()
-            .find(|(id, _)| *id == node).map(|(_, node)| node.name.clone()) else {
+            .find(|(id, _)| *id == node_id).map(|(_, node)| node) else {
                 return;
             };
 
-        for ((_, _), io_info) in &self
-            .nodes
-            .iter()
-            .find(|(id, _)| *id == node)
-            .unwrap()
-            .1
-            .io_info
-        {
-            println!(
-                "IO kind: {:?}, Name: {:?}, for node: {node_name:?}",
-                io_info.kind, io_info.name,
-            );
-            if io_info.kind == IOKind::Output as i32 {
-                connected_nodes.insert(io_info.id);
-            }
-        }
-        println!(
-            "Connected nodes: {:?} for node: {:?}",
-            connected_nodes, node_name
-        );
+        let output_nodes = self.get_nodes_connected_to_outputs(node);
+        let mut connected_nodes = HashSet::new();
 
-        let rank = nodes_rank.get(&node).unwrap_or(&0) + 1;
-        for n in connected_nodes {
-            if let Some(n_rank) = nodes_rank.get_mut(&n) {
-                *n_rank = std::cmp::max(*n_rank, rank);
-            } else {
-                nodes_rank.insert(n, rank);
+        println!(
+            "Output nodes: {:?}",
+            output_nodes
+                .iter()
+                .map(|n| n.name.clone())
+                .collect::<Vec<_>>()
+        );
+        for n in output_nodes {
+            if visited_connections.contains(&(node_id, n.id)) {
+                continue;
             }
-            self.update_node_rank(n, nodes_rank);
+            visited_connections.insert((node_id, n.id));
+            connected_nodes.insert(n.id);
+        }
+        let rank = nodes_rank.get(&node_id).unwrap_or(&0) + 1;
+        for n in connected_nodes {
+            nodes_rank.insert(n, rank);
+            self.update_node_rank(n, nodes_rank, visited_connections);
         }
     }
 
@@ -1244,7 +1281,7 @@ impl Schema {
         let mut nodes_rank = HashMap::new();
         for node in nodes {
             nodes_rank.insert(node.id, 0);
-            self.update_node_rank(node.id, &mut nodes_rank);
+            self.update_node_rank(node.id, &mut nodes_rank, &mut HashSet::new());
         }
         nodes_rank
     }
@@ -1256,10 +1293,29 @@ impl Schema {
             if START_NODES.contains(&node.name.as_str()) {
                 start_nodes.push(node.clone());
             }
+            // Also add the nodes that don't have any input connections
+            else if !self.connections.iter().any(|con| con.dest_node == node.id) {
+                start_nodes.push(node.clone());
+            }
         }
 
         let node_rank = self.compute_node_rank(&start_nodes);
-        println!("Node rank: {:?}", node_rank);
+        println!(
+            "Node rank: {:?}",
+            node_rank
+                .iter()
+                .map(|(id, rank)| (
+                    self.nodes
+                        .iter()
+                        .find(|(node_id, _)| node_id == id)
+                        .unwrap()
+                        .1
+                        .name
+                        .as_str(),
+                    rank
+                ))
+                .collect::<Vec<_>>()
+        );
         let mut rank_map = HashMap::new();
         for (id, rank) in node_rank.iter() {
             let Some(node_id) = self.nodes
@@ -1271,11 +1327,11 @@ impl Schema {
         }
 
         let mut current_x = 0.0;
-        let node_height = 120.0;
+        let node_height = 150.0;
         println!("Rank map: {:?}", rank_map);
         for rank in 0..rank_map.len() {
             let ranked_nodes = rank_map.get(&(rank as i32)).unwrap();
-            let max_width = 150.0;
+            let max_width = 350.0;
             current_x += max_width;
             let mut current_y = 0.0;
             for (idx, node) in ranked_nodes.iter().enumerate() {
@@ -1342,13 +1398,7 @@ impl NodeGraphExample {
                 .unwrap()
                 .outputs
                 .iter()
-                .find(|(name, conn_id)| {
-                    println!(
-                        "Checking src {name:?} == {:?}",
-                        connection.source_node_output
-                    );
-                    name == &connection.source_node_output
-                })
+                .find(|(name, _)| name == &connection.source_node_output)
                 .unwrap()
                 .1;
             let dest_node_input = graph
@@ -1357,10 +1407,7 @@ impl NodeGraphExample {
                 .unwrap()
                 .inputs
                 .iter()
-                .find(|(name, conn_id)| {
-                    println!("Checking dst {name:?} == {:?}", connection.dest_node_input);
-                    name == &connection.dest_node_input
-                })
+                .find(|(name, _)| name == &connection.dest_node_input)
                 .unwrap()
                 .1;
 
