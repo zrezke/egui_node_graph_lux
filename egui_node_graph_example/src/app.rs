@@ -1,6 +1,6 @@
 use std::{
     borrow::Cow,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     hash::Hash,
 };
 
@@ -1183,19 +1183,24 @@ impl Schema {
             .collect()
     }
 
-    fn get_nodes_connected_to_outputs(&self, node: &Node) -> Vec<&Node> {
-        self.connections
-            .iter()
-            .filter(|c| c.source_node == node.id)
-            .map(|c| {
-                &self
+    fn get_nodes_connected_to_outputs(&self, node: &Node) -> BTreeMap<String, Vec<&Node>> {
+        let mut output_nodes = BTreeMap::new();
+        for connection in self.all_connections(node) {
+            if connection.source_node == node.id {
+                let dest_node = &self
                     .nodes
                     .iter()
-                    .find(|(id, _)| *id == c.dest_node)
+                    .find(|(id, _)| *id == connection.dest_node)
                     .unwrap()
-                    .1
-            })
-            .collect::<Vec<_>>()
+                    .1;
+                let output_name = connection.source_node_output.clone();
+                output_nodes
+                    .entry(output_name)
+                    .or_insert_with(Vec::new)
+                    .push(dest_node);
+            }
+        }
+        output_nodes
     }
 
     // fn update_node_rank(&self, node: i32, nodes_rank: &mut HashMap<i32, i32>) {
@@ -1256,30 +1261,35 @@ impl Schema {
         let output_nodes = self.get_nodes_connected_to_outputs(node);
         let mut connected_nodes = HashSet::new();
 
-        println!(
-            "Output nodes: {:?}",
-            output_nodes
-                .iter()
-                .map(|n| n.name.clone())
-                .collect::<Vec<_>>()
-        );
-        for n in output_nodes {
-            if visited_connections.contains(&(node_id, n.id)) {
-                continue;
+        for nodes in output_nodes.values() {
+            for n in nodes {
+                if visited_connections.contains(&(node_id, n.id)) {
+                    continue;
+                }
+                visited_connections.insert((node_id, n.id));
+                connected_nodes.insert(n.id);
             }
-            visited_connections.insert((node_id, n.id));
-            connected_nodes.insert(n.id);
         }
+
         let rank = nodes_rank.get(&node_id).unwrap_or(&0) + 1;
         for n in connected_nodes {
-            nodes_rank.insert(n, rank);
+            if !nodes_rank.contains_key(&n) {
+                nodes_rank.insert(n, rank);
+            }
             self.update_node_rank(n, nodes_rank, visited_connections);
         }
     }
 
-    fn compute_node_rank(&self, nodes: &Vec<Node>) -> HashMap<i32, i32> {
+    fn compute_node_rank(&self, start_nodes: &Vec<Node>) -> HashMap<i32, i32> {
+        println!(
+            "Start nodes: {:?}",
+            start_nodes
+                .iter()
+                .map(|n| n.name.clone())
+                .collect::<Vec<_>>()
+        );
         let mut nodes_rank = HashMap::new();
-        for node in nodes {
+        for node in start_nodes {
             nodes_rank.insert(node.id, 0);
             self.update_node_rank(node.id, &mut nodes_rank, &mut HashSet::new());
         }
@@ -1328,7 +1338,6 @@ impl Schema {
 
         let mut current_x = 0.0;
         let node_height = 150.0;
-        println!("Rank map: {:?}", rank_map);
         for rank in 0..rank_map.len() {
             let ranked_nodes = rank_map.get(&(rank as i32)).unwrap();
             let max_width = 350.0;

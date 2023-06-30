@@ -1,1637 +1,698 @@
 {
-    "connections": [
-        {
-            "node1Id": 2,
-            "node1Output": "passthrough",
-            "node1OutputGroup": "",
-            "node2Id": 12,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 4,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 11,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 2,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 10,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 0,
-            "node1Output": "video",
-            "node1OutputGroup": "",
-            "node2Id": 9,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 8,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 4,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 7,
-            "node1Output": "manip_img",
-            "node1OutputGroup": "io",
-            "node2Id": 8,
-            "node2Input": "inputImage",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 7,
-            "node1Output": "manip_cfg",
-            "node1OutputGroup": "io",
-            "node2Id": 8,
-            "node2Input": "inputConfig",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 4,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 7,
-            "node2Input": "recognition",
-            "node2InputGroup": "io"
-        },
-        {
-            "node1Id": 6,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 7,
-            "node2Input": "frames",
-            "node2InputGroup": "io"
-        },
-        {
-            "node1Id": 2,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 7,
-            "node2Input": "detections",
-            "node2InputGroup": "io"
-        },
-        {
-            "node1Id": 0,
-            "node1Output": "preview",
-            "node1OutputGroup": "",
-            "node2Id": 6,
-            "node2Input": "inputImage",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 3,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 2,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 0,
-            "node1Output": "preview",
-            "node1OutputGroup": "",
-            "node2Id": 3,
-            "node2Input": "inputImage",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 8,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 13,
-            "node2Input": "in",
-            "node2InputGroup": ""
-        },
-        {
-            "node1Id": 1,
-            "node1Output": "out",
-            "node1OutputGroup": "",
-            "node2Id": 0,
-            "node2Input": "inputControl",
-            "node2InputGroup": ""
-        }
-    ],
-    "globalProperties": {
-        "calibData": null,
-        "cameraTuningBlobSize": null,
-        "cameraTuningBlobUri": "",
-        "leonCssFrequencyHz": 700000000.0,
-        "leonMssFrequencyHz": 700000000.0,
-        "pipelineName": null,
-        "pipelineVersion": null,
-        "sippBufferSize": 18432,
-        "sippDmaBufferSize": 16384,
-        "xlinkChunkSize": -1
+  "connections": [
+    {
+      "node1Id": 6,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 11,
+      "node2Input": "in",
+      "node2InputGroup": ""
     },
-    "nodes": [
-        [
-            12,
+    {
+      "node1Id": 1,
+      "node1Output": "passthrough",
+      "node1OutputGroup": "",
+      "node2Id": 10,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 2,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 9,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 1,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 8,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 0,
+      "node1Output": "preview",
+      "node1OutputGroup": "",
+      "node2Id": 7,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 6,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 2,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 5,
+      "node1Output": "manip_img",
+      "node1OutputGroup": "io",
+      "node2Id": 6,
+      "node2Input": "inputImage",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 5,
+      "node1Output": "manip_cfg",
+      "node1OutputGroup": "io",
+      "node2Id": 6,
+      "node2Input": "inputConfig",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 2,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 5,
+      "node2Input": "recognition",
+      "node2InputGroup": "io"
+    },
+    {
+      "node1Id": 4,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 5,
+      "node2Input": "frames",
+      "node2InputGroup": "io"
+    },
+    {
+      "node1Id": 1,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 5,
+      "node2Input": "detections",
+      "node2InputGroup": "io"
+    },
+    {
+      "node1Id": 0,
+      "node1Output": "preview",
+      "node1OutputGroup": "",
+      "node2Id": 4,
+      "node2Input": "inputImage",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 3,
+      "node1Output": "out",
+      "node1OutputGroup": "",
+      "node2Id": 1,
+      "node2Input": "in",
+      "node2InputGroup": ""
+    },
+    {
+      "node1Id": 0,
+      "node1Output": "preview",
+      "node1OutputGroup": "",
+      "node2Id": 3,
+      "node2Input": "inputImage",
+      "node2InputGroup": ""
+    }
+  ],
+  "globalProperties": {
+    "calibData": null,
+    "cameraTuningBlobSize": null,
+    "cameraTuningBlobUri": "",
+    "leonCssFrequencyHz": 700000000.0,
+    "leonMssFrequencyHz": 700000000.0,
+    "pipelineName": null,
+    "pipelineVersion": null,
+    "sippBufferSize": 18432,
+    "sippDmaBufferSize": 16384,
+    "xlinkChunkSize": -1
+  },
+  "nodes": [
+    [
+      0,
+      {
+        "id": 0,
+        "ioInfo": [
+          [
+            ["", "video"],
             {
-                "id": 12,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 37,
-                            "name": "in",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "XLinkOut",
-                "properties": [
-                    185,
-                    3,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    189,
-                    13,
-                    50,
-                    95,
-                    112,
-                    97,
-                    115,
-                    115,
-                    116,
-                    104,
-                    114,
-                    111,
-                    117,
-                    103,
-                    104,
-                    0
-                ]
+              "blocking": false,
+              "group": "",
+              "id": 33,
+              "name": "video",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
             }
+          ],
+          [
+            ["", "still"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 31,
+              "name": "still",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "isp"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 30,
+              "name": "isp",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "preview"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 32,
+              "name": "preview",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "raw"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 29,
+              "name": "raw",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "frameEvent"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 28,
+              "name": "frameEvent",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputConfig"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 27,
+              "name": "inputConfig",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputControl"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 26,
+              "name": "inputControl",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ]
         ],
-        [
-            13,
-            {
-                "id": 13,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 1,
-                            "name": "in",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "XLinkOut",
-                "properties": [
-                    185,
-                    3,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    189,
-                    5,
-                    56,
-                    95,
-                    111,
-                    117,
-                    116,
-                    0
-                ]
-            }
-        ],
-        [
-            0,
-            {
-                "id": 0,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "video"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 9,
-                            "name": "video",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "still"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 7,
-                            "name": "still",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "isp"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 6,
-                            "name": "isp",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "preview"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 8,
-                            "name": "preview",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "raw"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 5,
-                            "name": "raw",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "frameEvent"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 4,
-                            "name": "frameEvent",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputConfig"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 3,
-                            "name": "inputConfig",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputControl"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 2,
-                            "name": "inputControl",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ]
-                ],
-                "name": "ColorCamera",
-                "properties": [
-                    185,
-                    25,
-                    185,
-                    27,
-                    0,
-                    3,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    0,
-                    0,
-                    0,
-                    185,
-                    5,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    5,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    189,
-                    0,
-                    255,
-                    0,
-                    0,
-                    0,
-                    129,
-                    208,
-                    2,
-                    129,
-                    0,
-                    5,
-                    133,
-                    0,
-                    5,
-                    133,
-                    208,
-                    2,
-                    255,
-                    255,
-                    0,
-                    136,
-                    0,
-                    0,
-                    240,
-                    65,
-                    0,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    1,
-                    185,
-                    4,
-                    2,
-                    3,
-                    2,
-                    3,
-                    3,
-                    3,
-                    10,
-                    4,
-                    4
-                ]
-            }
-        ],
-        [
-            1,
-            {
-                "id": 1,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 10,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ]
-                ],
-                "name": "XLinkIn",
-                "properties": [
-                    185,
-                    3,
-                    189,
-                    14,
-                    48,
-                    95,
-                    105,
-                    110,
-                    112,
-                    117,
-                    116,
-                    67,
-                    111,
-                    110,
-                    116,
-                    114,
-                    111,
-                    108,
-                    1,
-                    8
-                ]
-            }
-        ],
-        [
-            2,
-            {
-                "id": 2,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 13,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "passthrough"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 12,
-                            "name": "passthrough",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 11,
-                            "name": "in",
-                            "queueSize": 5,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "DetectionNetwork",
-                "properties": [
-                    185,
-                    6,
-                    130,
-                    203,
-                    106,
-                    20,
-                    0,
-                    189,
-                    12,
-                    97,
-                    115,
-                    115,
-                    101,
-                    116,
-                    58,
-                    95,
-                    95,
-                    98,
-                    108,
-                    111,
-                    98,
-                    8,
-                    0,
-                    0,
-                    185,
-                    7,
-                    1,
-                    136,
-                    0,
-                    0,
-                    0,
-                    63,
-                    0,
-                    0,
-                    186,
-                    0,
-                    187,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0
-                ]
-            }
-        ],
-        [
-            3,
-            {
-                "id": 3,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 16,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputConfig"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 15,
-                            "name": "inputConfig",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputImage"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 14,
-                            "name": "inputImage",
-                            "queueSize": 2,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "ImageManip",
-                "properties": [
-                    185,
-                    6,
-                    185,
-                    8,
-                    185,
-                    7,
-                    185,
-                    4,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    0,
-                    1,
-                    185,
-                    15,
-                    133,
-                    44,
-                    1,
-                    133,
-                    44,
-                    1,
-                    0,
-                    0,
-                    0,
-                    0,
-                    186,
-                    0,
-                    1,
-                    0,
-                    186,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    185,
-                    6,
-                    8,
-                    0,
-                    0,
-                    0,
-                    0,
-                    133,
-                    255,
-                    0,
-                    1,
-                    1,
-                    1,
-                    0,
-                    0,
-                    134,
-                    176,
-                    30,
-                    4,
-                    0,
-                    4,
-                    0,
-                    0,
-                    189,
-                    0
-                ]
-            }
-        ],
-        [
-            4,
-            {
-                "id": 4,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 19,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "passthrough"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 18,
-                            "name": "passthrough",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 17,
-                            "name": "in",
-                            "queueSize": 20,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "NeuralNetwork",
-                "properties": [
-                    185,
-                    5,
-                    130,
-                    32,
-                    183,
-                    65,
-                    0,
-                    189,
-                    12,
-                    97,
-                    115,
-                    115,
-                    101,
-                    116,
-                    58,
-                    95,
-                    95,
-                    98,
-                    108,
-                    111,
-                    98,
-                    8,
-                    0,
-                    0
-                ]
-            }
-        ],
-        [
-            5,
-            {
-                "id": 5,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 22,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputConfig"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 21,
-                            "name": "inputConfig",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputImage"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 20,
-                            "name": "inputImage",
-                            "queueSize": 2,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "ImageManip",
-                "properties": [
-                    185,
-                    6,
-                    185,
-                    8,
-                    185,
-                    7,
-                    185,
-                    4,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    0,
-                    1,
-                    185,
-                    15,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    186,
-                    0,
-                    1,
-                    0,
-                    186,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    185,
-                    6,
-                    8,
-                    0,
-                    0,
-                    0,
-                    0,
-                    133,
-                    255,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                    133,
-                    12,
-                    45,
-                    4,
-                    0,
-                    0,
-                    189,
-                    0
-                ]
-            }
-        ],
-        [
-            6,
-            {
-                "id": 6,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 25,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputConfig"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 24,
-                            "name": "inputConfig",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputImage"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 23,
-                            "name": "inputImage",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "ImageManip",
-                "properties": [
-                    185,
-                    6,
-                    185,
-                    8,
-                    185,
-                    7,
-                    185,
-                    4,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    0,
-                    1,
-                    185,
-                    15,
-                    133,
-                    208,
-                    2,
-                    133,
-                    208,
-                    2,
-                    0,
-                    0,
-                    0,
-                    0,
-                    186,
-                    0,
-                    1,
-                    0,
-                    186,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    185,
-                    6,
-                    32,
-                    0,
-                    0,
-                    0,
-                    0,
-                    133,
-                    255,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                    0,
-                    134,
-                    0,
-                    187,
-                    23,
-                    0,
-                    20,
-                    0,
-                    0,
-                    189,
-                    0
-                ]
-            }
-        ],
-        [
-            7,
-            {
-                "id": 7,
-                "ioInfo": [
-                    [
-                        [
-                            "io",
-                            "manip_cfg"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "io",
-                            "id": 30,
-                            "name": "manip_cfg",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "io",
-                            "manip_img"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "io",
-                            "id": 29,
-                            "name": "manip_img",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "io",
-                            "detections"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "io",
-                            "id": 28,
-                            "name": "detections",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "io",
-                            "frames"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "io",
-                            "id": 27,
-                            "name": "frames",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "io",
-                            "recognition"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "io",
-                            "id": 26,
-                            "name": "recognition",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": false
-                        }
-                    ]
-                ],
-                "name": "Script",
-                "properties": [
-                    185,
-                    3,
-                    189,
-                    14,
-                    97,
-                    115,
-                    115,
-                    101,
-                    116,
-                    58,
-                    95,
-                    95,
-                    115,
-                    99,
-                    114,
-                    105,
-                    112,
-                    116,
-                    189,
-                    8,
-                    60,
-                    115,
-                    99,
-                    114,
-                    105,
-                    112,
-                    116,
-                    62,
-                    0
-                ]
-            }
-        ],
-        [
-            8,
-            {
-                "id": 8,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "out"
-                        ],
-                        {
-                            "blocking": false,
-                            "group": "",
-                            "id": 33,
-                            "name": "out",
-                            "queueSize": 8,
-                            "type": 0,
-                            "waitForMessage": false
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputConfig"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 32,
-                            "name": "inputConfig",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ],
-                    [
-                        [
-                            "",
-                            "inputImage"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 31,
-                            "name": "inputImage",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "ImageManip",
-                "properties": [
-                    185,
-                    6,
-                    185,
-                    8,
-                    185,
-                    7,
-                    185,
-                    4,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    3,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    185,
-                    2,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    136,
-                    0,
-                    0,
-                    128,
-                    63,
-                    0,
-                    1,
-                    185,
-                    15,
-                    62,
-                    62,
-                    0,
-                    0,
-                    0,
-                    0,
-                    186,
-                    0,
-                    1,
-                    0,
-                    186,
-                    0,
-                    0,
-                    0,
-                    136,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    185,
-                    6,
-                    32,
-                    0,
-                    0,
-                    0,
-                    0,
-                    133,
-                    255,
-                    0,
-                    0,
-                    1,
-                    0,
-                    0,
-                    0,
-                    133,
-                    12,
-                    45,
-                    20,
-                    0,
-                    0,
-                    189,
-                    0
-                ]
-            }
-        ],
-        [
-            9,
-            {
-                "id": 9,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 34,
-                            "name": "in",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "XLinkOut",
-                "properties": [
-                    185,
-                    3,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    189,
-                    7,
-                    48,
-                    95,
-                    118,
-                    105,
-                    100,
-                    101,
-                    111,
-                    0
-                ]
-            }
-        ],
-        [
-            10,
-            {
-                "id": 10,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 35,
-                            "name": "in",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "XLinkOut",
-                "properties": [
-                    185,
-                    3,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    189,
-                    5,
-                    50,
-                    95,
-                    111,
-                    117,
-                    116,
-                    0
-                ]
-            }
-        ],
-        [
-            11,
-            {
-                "id": 11,
-                "ioInfo": [
-                    [
-                        [
-                            "",
-                            "in"
-                        ],
-                        {
-                            "blocking": true,
-                            "group": "",
-                            "id": 36,
-                            "name": "in",
-                            "queueSize": 8,
-                            "type": 3,
-                            "waitForMessage": true
-                        }
-                    ]
-                ],
-                "name": "XLinkOut",
-                "properties": [
-                    185,
-                    3,
-                    136,
-                    0,
-                    0,
-                    128,
-                    191,
-                    189,
-                    5,
-                    52,
-                    95,
-                    111,
-                    117,
-                    116,
-                    0
-                ]
-            }
+        "name": "ColorCamera",
+        "properties": [
+          185, 25, 185, 27, 0, 3, 0, 0, 0, 185, 3, 0, 0, 0, 185, 5, 0, 0, 0, 0,
+          0, 185, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 185, 3, 0, 0, 0, 185,
+          3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 189, 0, 255, 0, 0, 0,
+          129, 208, 2, 129, 0, 5, 133, 0, 5, 133, 208, 2, 255, 255, 0, 136, 0,
+          0, 240, 65, 0, 136, 0, 0, 128, 191, 136, 0, 0, 128, 191, 1, 185, 4, 2,
+          3, 2, 3, 3, 3, 10, 4, 4
         ]
+      }
+    ],
+    [
+      1,
+      {
+        "id": 1,
+        "ioInfo": [
+          [
+            ["", "out"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 25,
+              "name": "out",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "passthrough"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 24,
+              "name": "passthrough",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 23,
+              "name": "in",
+              "queueSize": 5,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "DetectionNetwork",
+        "properties": [
+          185, 6, 130, 0, 106, 20, 0, 189, 12, 97, 115, 115, 101, 116, 58, 95,
+          95, 98, 108, 111, 98, 8, 0, 0, 185, 7, 1, 136, 0, 0, 0, 63, 0, 0, 186,
+          0, 187, 0, 136, 0, 0, 0, 0
+        ]
+      }
+    ],
+    [
+      2,
+      {
+        "id": 2,
+        "ioInfo": [
+          [
+            ["", "out"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 22,
+              "name": "out",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "passthrough"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 21,
+              "name": "passthrough",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 20,
+              "name": "in",
+              "queueSize": 20,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "NeuralNetwork",
+        "properties": [
+          185, 5, 130, 0, 182, 65, 0, 189, 12, 97, 115, 115, 101, 116, 58, 95,
+          95, 98, 108, 111, 98, 8, 0, 0
+        ]
+      }
+    ],
+    [
+      3,
+      {
+        "id": 3,
+        "ioInfo": [
+          [
+            ["", "out"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 19,
+              "name": "out",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputConfig"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 18,
+              "name": "inputConfig",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputImage"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 17,
+              "name": "inputImage",
+              "queueSize": 2,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "ImageManip",
+        "properties": [
+          185, 6, 185, 8, 185, 7, 185, 4, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136,
+          0, 0, 0, 0, 136, 0, 0, 0, 0, 185, 3, 185, 2, 136, 0, 0, 0, 0, 136, 0,
+          0, 0, 0, 185, 2, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 0,
+          136, 0, 0, 128, 63, 136, 0, 0, 128, 63, 0, 1, 185, 15, 133, 44, 1,
+          133, 44, 1, 0, 0, 0, 0, 186, 0, 1, 0, 186, 0, 0, 0, 136, 0, 0, 0, 0,
+          0, 1, 185, 6, 8, 0, 0, 0, 0, 133, 255, 0, 0, 1, 1, 0, 0, 134, 176, 30,
+          4, 0, 4, 0, 0, 189, 0
+        ]
+      }
+    ],
+    [
+      4,
+      {
+        "id": 4,
+        "ioInfo": [
+          [
+            ["", "out"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 16,
+              "name": "out",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputConfig"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 15,
+              "name": "inputConfig",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputImage"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 14,
+              "name": "inputImage",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "ImageManip",
+        "properties": [
+          185, 6, 185, 8, 185, 7, 185, 4, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136,
+          0, 0, 0, 0, 136, 0, 0, 0, 0, 185, 3, 185, 2, 136, 0, 0, 0, 0, 136, 0,
+          0, 0, 0, 185, 2, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 0,
+          136, 0, 0, 128, 63, 136, 0, 0, 128, 63, 0, 1, 185, 15, 133, 208, 2,
+          133, 208, 2, 0, 0, 0, 0, 186, 0, 1, 0, 186, 0, 0, 0, 136, 0, 0, 0, 0,
+          0, 1, 185, 6, 8, 0, 0, 0, 0, 133, 255, 0, 0, 1, 1, 0, 0, 134, 0, 187,
+          23, 0, 10, 0, 0, 189, 0
+        ]
+      }
+    ],
+    [
+      5,
+      {
+        "id": 5,
+        "ioInfo": [
+          [
+            ["io", "manip_cfg"],
+            {
+              "blocking": false,
+              "group": "io",
+              "id": 13,
+              "name": "manip_cfg",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["io", "manip_img"],
+            {
+              "blocking": false,
+              "group": "io",
+              "id": 12,
+              "name": "manip_img",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["io", "detections"],
+            {
+              "blocking": true,
+              "group": "io",
+              "id": 11,
+              "name": "detections",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["io", "frames"],
+            {
+              "blocking": true,
+              "group": "io",
+              "id": 10,
+              "name": "frames",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["io", "recognition"],
+            {
+              "blocking": true,
+              "group": "io",
+              "id": 9,
+              "name": "recognition",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": false
+            }
+          ]
+        ],
+        "name": "Script",
+        "properties": [
+          185, 3, 189, 14, 97, 115, 115, 101, 116, 58, 95, 95, 115, 99, 114,
+          105, 112, 116, 189, 8, 60, 115, 99, 114, 105, 112, 116, 62, 0
+        ]
+      }
+    ],
+    [
+      6,
+      {
+        "id": 6,
+        "ioInfo": [
+          [
+            ["", "out"],
+            {
+              "blocking": false,
+              "group": "",
+              "id": 8,
+              "name": "out",
+              "queueSize": 8,
+              "type": 0,
+              "waitForMessage": false
+            }
+          ],
+          [
+            ["", "inputConfig"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 7,
+              "name": "inputConfig",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ],
+          [
+            ["", "inputImage"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 6,
+              "name": "inputImage",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "ImageManip",
+        "properties": [
+          185, 6, 185, 8, 185, 7, 185, 4, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136,
+          0, 0, 0, 0, 136, 0, 0, 0, 0, 185, 3, 185, 2, 136, 0, 0, 0, 0, 136, 0,
+          0, 0, 0, 185, 2, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 136, 0, 0, 0, 0, 0,
+          136, 0, 0, 128, 63, 136, 0, 0, 128, 63, 0, 1, 185, 15, 62, 62, 0, 0,
+          0, 0, 186, 0, 1, 0, 186, 0, 0, 0, 136, 0, 0, 0, 0, 0, 1, 185, 6, 32,
+          0, 0, 0, 0, 133, 255, 0, 0, 1, 0, 0, 0, 133, 12, 45, 20, 0, 0, 189, 0
+        ]
+      }
+    ],
+    [
+      7,
+      {
+        "id": 7,
+        "ioInfo": [
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 5,
+              "name": "in",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "XLinkOut",
+        "properties": [
+          185, 3, 136, 0, 0, 128, 191, 189, 9, 48, 95, 112, 114, 101, 118, 105,
+          101, 119, 0
+        ]
+      }
+    ],
+    [
+      8,
+      {
+        "id": 8,
+        "ioInfo": [
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 4,
+              "name": "in",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "XLinkOut",
+        "properties": [
+          185, 3, 136, 0, 0, 128, 191, 189, 5, 49, 95, 111, 117, 116, 0
+        ]
+      }
+    ],
+    [
+      9,
+      {
+        "id": 9,
+        "ioInfo": [
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 3,
+              "name": "in",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "XLinkOut",
+        "properties": [
+          185, 3, 136, 0, 0, 128, 191, 189, 5, 50, 95, 111, 117, 116, 0
+        ]
+      }
+    ],
+    [
+      10,
+      {
+        "id": 10,
+        "ioInfo": [
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 2,
+              "name": "in",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "XLinkOut",
+        "properties": [
+          185, 3, 136, 0, 0, 128, 191, 189, 13, 49, 95, 112, 97, 115, 115, 116,
+          104, 114, 111, 117, 103, 104, 0
+        ]
+      }
+    ],
+    [
+      11,
+      {
+        "id": 11,
+        "ioInfo": [
+          [
+            ["", "in"],
+            {
+              "blocking": true,
+              "group": "",
+              "id": 1,
+              "name": "in",
+              "queueSize": 8,
+              "type": 3,
+              "waitForMessage": true
+            }
+          ]
+        ],
+        "name": "XLinkOut",
+        "properties": [
+          185, 3, 136, 0, 0, 128, 191, 189, 5, 54, 95, 111, 117, 116, 0
+        ]
+      }
     ]
+  ]
 }
