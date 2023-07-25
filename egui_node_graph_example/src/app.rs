@@ -94,7 +94,6 @@ impl DepthaiNode {
 pub enum MyDataType {
     Scalar,
     Vec2,
-
     Queue(DepthaiNode),
 }
 
@@ -1420,7 +1419,11 @@ impl NodeGraphExample {
                 .unwrap()
                 .1;
 
-            graph.add_connection(source_node_output, dest_node_input);
+            graph.add_connection(
+                source_node_output,
+                dest_node_input,
+                Some(String::from("FPS: 30")),
+            );
         }
     }
 }
@@ -1632,21 +1635,21 @@ fn evaluate_input(
     let input_id = graph[node_id].get_input(param_name)?;
 
     // The output of another node is connected.
-    if let Some(other_output_id) = graph.connection(input_id) {
+    if let Some(other) = graph.connection(input_id) {
         // The value was already computed due to the evaluation of some other
         // node. We simply return value from the cache.
-        if let Some(other_value) = outputs_cache.get(&other_output_id) {
+        if let Some(other_value) = outputs_cache.get(&other.output.clone()) {
             Ok(*other_value)
         }
         // This is the first time encountering this node, so we need to
         // recursively evaluate it.
         else {
             // Calling this will populate the cache
-            evaluate_node(graph, graph[other_output_id].node, outputs_cache)?;
+            evaluate_node(graph, graph[other.output.clone()].node, outputs_cache)?;
 
             // Now that we know the value is cached, return it
             Ok(*outputs_cache
-                .get(&other_output_id)
+                .get(&other.output.clone())
                 .expect("Cache should be populated"))
         }
     }

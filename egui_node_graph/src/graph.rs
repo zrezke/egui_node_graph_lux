@@ -73,6 +73,14 @@ pub struct OutputParam<DataType> {
     pub typ: DataType,
 }
 
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "persistence", derive(Serialize, Deserialize))]
+pub struct Connection {
+    pub input: InputId,
+    pub output: OutputId,
+    pub text: Option<String>,
+}
+
 /// The graph, containing nodes, input parameters and output parameters. Because
 /// graphs are full of self-referential structures, this type uses the `slotmap`
 /// crate to represent all the inner references in the data.
@@ -87,5 +95,5 @@ pub struct Graph<NodeData, DataType, ValueType> {
     pub outputs: SlotMap<OutputId, OutputParam<DataType>>,
     // Connects the input of a node, to the output of its predecessor that
     // produces it
-    pub connections: SecondaryMap<InputId, OutputId>,
+    pub connections: Vec<Connection>,
 }

@@ -142,12 +142,9 @@ where
         Self::Response: UserResponseTrait,
     {
         let rtl = egui::Layout::right_to_left(egui::Align::Min);
-        ui.with_layout(
-            rtl,
-            |ui| {
-                ui.label(param_name);
-            }
-        );
+        ui.with_layout(rtl, |ui| {
+            ui.label(param_name);
+        });
         Default::default()
     }
 

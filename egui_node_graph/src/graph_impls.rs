@@ -6,7 +6,7 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
             nodes: SlotMap::default(),
             inputs: SlotMap::default(),
             outputs: SlotMap::default(),
-            connections: SecondaryMap::default(),
+            connections: Vec::default(),
         }
     }
 
@@ -57,14 +57,14 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
         let node = self[param].node;
         self[node].inputs.retain(|(_, id)| *id != param);
         self.inputs.remove(param);
-        self.connections.retain(|i, _| i != param);
+        self.connections.retain(|conn| conn.input != param);
     }
 
     pub fn remove_output_param(&mut self, param: OutputId) {
         let node = self[param].node;
         self[node].outputs.retain(|(_, id)| *id != param);
         self.outputs.remove(param);
-        self.connections.retain(|_, o| *o != param);
+        self.connections.retain(|conn| conn.output != param);
     }
 
     pub fn add_output_param(&mut self, node_id: NodeId, name: String, typ: DataType) -> OutputId {
@@ -87,9 +87,10 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
     pub fn remove_node(&mut self, node_id: NodeId) -> (Node<NodeData>, Vec<(InputId, OutputId)>) {
         let mut disconnect_events = vec![];
 
-        self.connections.retain(|i, o| {
-            if self.outputs[*o].node == node_id || self.inputs[i].node == node_id {
-                disconnect_events.push((i, *o));
+        self.connections.retain(|conn| {
+            if self.outputs[conn.output].node == node_id || self.inputs[conn.input].node == node_id
+            {
+                disconnect_events.push((conn.input, conn.output));
                 false
             } else {
                 true
@@ -110,23 +111,37 @@ impl<NodeData, DataType, ValueType> Graph<NodeData, DataType, ValueType> {
     }
 
     pub fn remove_connection(&mut self, input_id: InputId) -> Option<OutputId> {
-        self.connections.remove(input_id)
+        match self
+            .connections
+            .iter()
+            .position(|conn| conn.input == input_id)
+        {
+            Some(index) => Some(self.connections.remove(index).output),
+            None => None,
+        }
     }
 
     pub fn iter_nodes(&self) -> impl Iterator<Item = NodeId> + '_ {
         self.nodes.iter().map(|(id, _)| id)
     }
 
-    pub fn add_connection(&mut self, output: OutputId, input: InputId) {
-        self.connections.insert(input, output);
+    pub fn add_connection(&mut self, output: OutputId, input: InputId, text: Option<String>) {
+        self.connections.push(Connection {
+            output,
+            input,
+            text,
+        });
     }
 
-    pub fn iter_connections(&self) -> impl Iterator<Item = (InputId, OutputId)> + '_ {
-        self.connections.iter().map(|(o, i)| (o, *i))
+    pub fn iter_connections(&self) -> impl Iterator<Item = &Connection> + '_ {
+        self.connections.iter()
     }
 
-    pub fn connection(&self, input: InputId) -> Option<OutputId> {
-        self.connections.get(input).copied()
+    pub fn connection(&self, input: InputId) -> Option<Connection> {
+        match self.connections.iter().position(|conn| conn.input == input) {
+            Some(index) => Some(self.connections[index].clone()),
+            None => None,
+        }
     }
 
     pub fn any_param_type(&self, param: AnyParameterId) -> Result<&DataType, EguiGraphError> {

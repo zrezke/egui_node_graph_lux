@@ -4,7 +4,7 @@ use crate::color_hex_utils::*;
 use crate::utils::ColorUtils;
 
 use super::*;
-use egui::epaint::{CubicBezierShape, RectShape};
+use egui::epaint::{CubicBezierShape, QuadraticBezierShape, RectShape};
 use egui::*;
 
 pub type PortLocations = std::collections::HashMap<AnyParameterId, Pos2>;
@@ -281,18 +281,29 @@ where
                     start_pos,
                 ),
             };
-            draw_connection(ui.painter(), src_pos, dst_pos, connection_color);
+            draw_connection(ui.painter(), src_pos, dst_pos, connection_color, None);
         }
 
-        for (input, output) in self.graph.iter_connections() {
+        for Connection {
+            input,
+            output,
+            text,
+        } in self.graph.iter_connections()
+        {
             let port_type = self
                 .graph
-                .any_param_type(AnyParameterId::Output(output))
+                .any_param_type(AnyParameterId::Output(output.clone()))
                 .unwrap();
             let connection_color = port_type.data_type_color(user_state);
-            let src_pos = port_locations[&AnyParameterId::Output(output)];
-            let dst_pos = port_locations[&AnyParameterId::Input(input)];
-            draw_connection(ui.painter(), src_pos, dst_pos, connection_color);
+            let src_pos = port_locations[&AnyParameterId::Output(output.clone())];
+            let dst_pos = port_locations[&AnyParameterId::Input(input.clone())];
+            draw_connection(
+                ui.painter(),
+                src_pos,
+                dst_pos,
+                connection_color,
+                text.clone(),
+            );
         }
 
         /* Handle responses from drawing nodes */
@@ -307,7 +318,7 @@ where
                     self.connection_in_progress = Some((*node_id, *port));
                 }
                 NodeResponse::ConnectEventEnded { input, output } => {
-                    self.graph.add_connection(*output, *input)
+                    self.graph.add_connection(*output, *input, None)
                 }
                 NodeResponse::CreatedNode(_) => {
                     //Convenience NodeResponse for users
@@ -441,7 +452,13 @@ where
     }
 }
 
-fn draw_connection(painter: &Painter, src_pos: Pos2, dst_pos: Pos2, color: Color32) {
+fn draw_connection(
+    painter: &Painter,
+    src_pos: Pos2,
+    dst_pos: Pos2,
+    color: Color32,
+    text: Option<String>,
+) {
     let connection_stroke = egui::Stroke { width: 5.0, color };
 
     let control_scale = ((dst_pos.x - src_pos.x) / 2.0).max(30.0);
@@ -454,6 +471,17 @@ fn draw_connection(painter: &Painter, src_pos: Pos2, dst_pos: Pos2, color: Color
         Color32::TRANSPARENT,
         connection_stroke,
     );
+
+    if let Some(text) = text {
+        let text_position = bezier.sample(0.5);
+        painter.text(
+            text_position,
+            Align2::RIGHT_BOTTOM,
+            text,
+            egui::FontId::default(),
+            color,
+        );
+    }
 
     painter.add(bezier);
 }
@@ -720,7 +748,8 @@ where
                     let input = param_id.assume_input();
                     let corresp_output = graph
                         .connection(input)
-                        .expect("Connection data should be valid");
+                        .expect("Connection data should be valid")
+                        .output;
                     responses.push(NodeResponse::DisconnectEvent {
                         input: param_id.assume_input(),
                         output: corresp_output,
